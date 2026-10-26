@@ -246,83 +246,197 @@ public final class TranslateMonitor: @unchecked Sendable {
     public struct AXSelectionInfo {
         public let text: String?
         public let isZeroLengthCaret: Bool
-        public let isCopyExplicitlyDisabled: Bool
+        public let isEditableField: Bool
+        public let hasDefiniteSelection: Bool
     }
 
     /// Synchronously query currently focused UI element for selected text via macOS Accessibility API (< 1ms)
-    public static func getSelectedTextViaAccessibility() -> AXSelectionInfo {
-        let systemWide = AXUIElementCreateSystemWide()
-        var focusedAppVal: AnyObject?
-        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedApplicationAttribute as CFString, &focusedAppVal) == .success,
-              let focusedApp = focusedAppVal else {
-            return AXSelectionInfo(text: nil, isZeroLengthCaret: false, isCopyExplicitlyDisabled: false)
+    public static func getSelectedTextViaAccessibility(frontPid: pid_t = 0) -> AXSelectionInfo {
+        var appElement: AXUIElement?
+        if frontPid > 0 {
+            appElement = AXUIElementCreateApplication(frontPid)
+        } else if let front = NSWorkspace.shared.frontmostApplication {
+            appElement = AXUIElementCreateApplication(front.processIdentifier)
         }
 
-        let appElement = focusedApp as! AXUIElement
+        if let app = appElement {
+            _ = AXUIElementSetAttributeValue(app, "AXEnhancedUserInterface" as CFString, true as CFTypeRef)
+        }
+
         var focusedElementVal: AnyObject?
-        let gotFocusedElement = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute as CFString, &focusedElementVal) == .success
+        var gotFocusedElement = false
+
+        // 1. First attempt: get focused element directly from front application
+        if let app = appElement {
+            if AXUIElementCopyAttributeValue(app, kAXFocusedUIElementAttribute as CFString, &focusedElementVal) == .success,
+               focusedElementVal != nil {
+                gotFocusedElement = true
+            }
+        }
+
+        // 2. Second attempt: get focused window from front application -> focused element inside window
+        var focusedWindowElement: AXUIElement?
+        if let app = appElement {
+            var focusedWindowVal: AnyObject?
+            if AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute as CFString, &focusedWindowVal) == .success,
+               let win = focusedWindowVal, CFGetTypeID(win) == AXUIElementGetTypeID() {
+                let winEl = win as! AXUIElement
+                focusedWindowElement = winEl
+                if !gotFocusedElement {
+                    if AXUIElementCopyAttributeValue(winEl, kAXFocusedUIElementAttribute as CFString, &focusedElementVal) == .success,
+                       focusedElementVal != nil {
+                        gotFocusedElement = true
+                    }
+                }
+            }
+        }
+
+        // 3. Third attempt: systemWide focused element
+        if !gotFocusedElement {
+            let systemWide = AXUIElementCreateSystemWide()
+            if AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &focusedElementVal) == .success,
+               focusedElementVal != nil {
+                gotFocusedElement = true
+            }
+        }
+
+        // 4. Readiness wait: If Electron/Chromium is cold and building its tree in background, wait up to 30ms (2x 15ms)
+        var retry = 0
+        while !gotFocusedElement && retry < 2, let app = appElement {
+            usleep(15_000)
+            if AXUIElementCopyAttributeValue(app, kAXFocusedUIElementAttribute as CFString, &focusedElementVal) == .success,
+               focusedElementVal != nil {
+                gotFocusedElement = true
+                break
+            }
+            if let win = focusedWindowElement {
+                if AXUIElementCopyAttributeValue(win, kAXFocusedUIElementAttribute as CFString, &focusedElementVal) == .success,
+                   focusedElementVal != nil {
+                    gotFocusedElement = true
+                    break
+                }
+            }
+            retry += 1
+        }
+
+        var isEditable = false
+        var hasDefiniteSelection = false
+        var isZeroLengthCaret = false
+        var selectedText: String? = nil
 
         if gotFocusedElement, let focusedElement = focusedElementVal {
             let element = focusedElement as! AXUIElement
 
-            // 1. Direct selected text check
+            // Check if element is an editable text input field (TextField, TextArea, SearchField, ComboBox, or editable text)
+            var roleVal: AnyObject?
+            if AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &roleVal) == .success,
+               let role = roleVal as? String {
+                let lower = role.lowercased()
+                if lower.contains("textfield") || lower.contains("textarea") || lower.contains("searchfield") || lower.contains("combobox") {
+                    isEditable = true
+                }
+            }
+
+            // Also check role description (Chromium often reports role description as "editable text")
+            var roleDescVal: AnyObject?
+            if AXUIElementCopyAttributeValue(element, kAXRoleDescriptionAttribute as CFString, &roleDescVal) == .success,
+               let roleDesc = roleDescVal as? String {
+                if roleDesc.lowercased().contains("edit") {
+                    isEditable = true
+                }
+            }
+
+            // Check if kAXValueAttribute is settable (standard for all editable fields)
+            var isSettable: DarwinBoolean = false
+            if AXUIElementIsAttributeSettable(element, kAXValueAttribute as CFString, &isSettable) == .success,
+               isSettable.boolValue {
+                isEditable = true
+            }
+
+            // Check if element has an editable ancestor (Chromium web inputs)
+            var editableAncestorVal: AnyObject?
+            if AXUIElementCopyAttributeValue(element, "AXEditableAncestor" as CFString, &editableAncestorVal) == .success,
+               editableAncestorVal != nil {
+                isEditable = true
+            }
+
+            // Direct selected text check (mouse drag, Cmd+A, Shift+Arrow)
             var selectedTextVal: AnyObject?
             if AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selectedTextVal) == .success,
                let str = selectedTextVal as? String {
                 let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmed.isEmpty {
-                    return AXSelectionInfo(text: trimmed, isZeroLengthCaret: false, isCopyExplicitlyDisabled: false)
+                    selectedText = trimmed
+                    hasDefiniteSelection = true
                 }
             }
 
-            // 2. Caret range check: if length == 0, caret is blinking in an input area with nothing selected
+            // Caret range check (CFRange)
             var selectedRangeVal: AnyObject?
             if AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &selectedRangeVal) == .success,
                CFGetTypeID(selectedRangeVal) == AXValueGetTypeID() {
                 let axVal = selectedRangeVal as! AXValue
                 var range = CFRange()
-                if AXValueGetValue(axVal, .cfRange, &range) && range.length == 0 {
-                    return AXSelectionInfo(text: nil, isZeroLengthCaret: true, isCopyExplicitlyDisabled: false)
-                }
-            }
-        }
-
-        // 3. Inspect application menu bar Edit -> Copy item to see if Copy is explicitly disabled
-        var copyDisabled = false
-        var menuBarVal: AnyObject?
-        if AXUIElementCopyAttributeValue(appElement, kAXMenuBarAttribute as CFString, &menuBarVal) == .success,
-            let menuBar = menuBarVal,
-            let menus = copyAttribute(menuBar as! AXUIElement, kAXChildrenAttribute) as? [AXUIElement] {
-            for menu in menus {
-                let title = (copyAttribute(menu, kAXTitleAttribute) as? String) ?? ""
-                if title == "Edit" || title == "编辑" || title == "編輯" {
-                    if let subLists = copyAttribute(menu, kAXChildrenAttribute) as? [AXUIElement],
-                       let menuList = subLists.first,
-                       let menuItems = copyAttribute(menuList, kAXChildrenAttribute) as? [AXUIElement] {
-                        for item in menuItems {
-                            let itemTitle = ((copyAttribute(item, kAXTitleAttribute) as? String) ?? "").trimmingCharacters(in: .whitespaces)
-                            if itemTitle.hasPrefix("Copy") || itemTitle.hasPrefix("拷贝") || itemTitle.hasPrefix("复制") || itemTitle.hasPrefix("拷貝") {
-                                if let enabled = copyAttribute(item, kAXEnabledAttribute) as? Bool, !enabled {
-                                    copyDisabled = true
+                if AXValueGetValue(axVal, .cfRange, &range) {
+                    if range.length > 0 {
+                        hasDefiniteSelection = true
+                        if selectedText == nil {
+                            var paramVal: AnyObject?
+                            if AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString, axVal, &paramVal) == .success,
+                               let pStr = paramVal as? String {
+                                let trimmed = pStr.trimmingCharacters(in: .whitespacesAndNewlines)
+                                if !trimmed.isEmpty {
+                                    selectedText = trimmed
                                 }
-                                break
                             }
                         }
+                    } else {
+                        // Length == 0: blinking caret in an input box without selection
+                        isZeroLengthCaret = true
+                        isEditable = true
                     }
-                    break
                 }
             }
         }
 
-        return AXSelectionInfo(text: nil, isZeroLengthCaret: false, isCopyExplicitlyDisabled: copyDisabled)
-    }
-
-    private static func copyAttribute(_ element: AXUIElement, _ attribute: String) -> AnyObject? {
-        var value: AnyObject?
-        if AXUIElementCopyAttributeValue(element, attribute as CFString, &value) == .success {
-            return value
+        // Also check window-level selected text if element didn't yield text (Chromium / WebKit web pages)
+        if selectedText == nil, let win = focusedWindowElement {
+            var winSelVal: AnyObject?
+            if AXUIElementCopyAttributeValue(win, kAXSelectedTextAttribute as CFString, &winSelVal) == .success,
+               let wStr = winSelVal as? String {
+                let trimmed = wStr.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    selectedText = trimmed
+                    hasDefiniteSelection = true
+                }
+            }
         }
-        return nil
+
+        var debugRole = "nil"
+        if gotFocusedElement, let elVal = focusedElementVal, CFGetTypeID(elVal) == AXUIElementGetTypeID() {
+            let el = elVal as! AXUIElement
+            var r: AnyObject?
+            if AXUIElementCopyAttributeValue(el, kAXRoleAttribute as CFString, &r) == .success,
+               let roleStr = r as? String {
+                debugRole = roleStr
+            }
+        }
+
+        NSLog("[SwaprTrans-DEBUG] gotEl: %d, role: %@, isEditable: %d, hasDefSel: %d, isCaret0: %d, selText: %@",
+              gotFocusedElement ? 1 : 0,
+              debugRole,
+              isEditable ? 1 : 0,
+              hasDefiniteSelection ? 1 : 0,
+              isZeroLengthCaret ? 1 : 0,
+              selectedText ?? "nil"
+        )
+
+        return AXSelectionInfo(
+            text: selectedText,
+            isZeroLengthCaret: isZeroLengthCaret,
+            isEditableField: isEditable,
+            hasDefiniteSelection: hasDefiniteSelection
+        )
     }
 
     private var lastText: String = ""
@@ -401,29 +515,22 @@ public final class TranslateMonitor: @unchecked Sendable {
             }
 
             // 1. Try Accessibility API first (silent, zero pasteboard interference, no NSBeep)
-            let axInfo = TranslateMonitor.getSelectedTextViaAccessibility()
+            let axInfo = TranslateMonitor.getSelectedTextViaAccessibility(frontPid: frontPid)
             if let text = axInfo.text, !text.isEmpty {
                 self?.triggerDirectTranslation(text: text, frontPid: frontPid)
                 return
             }
 
-            // 2. If caret is blinking in an input box with 0-length selection, user is just typing
-            if axInfo.isZeroLengthCaret {
+            // 2. If in an editable input field and confirmed typing state (zero-length caret, or editable without definite selection):
+            // User is 100% typing! Replay key directly and NEVER invoke simulateCmdC()!
+            if axInfo.isZeroLengthCaret || (axInfo.isEditableField && !axInfo.hasDefiniteSelection) {
                 if shouldReplay {
                     self?.replayTargetKey()
                 }
                 return
             }
 
-            // 3. If Copy menu item is explicitly disabled, Cmd+C will cause macOS NSBeep alert sound!
-            if axInfo.isCopyExplicitlyDisabled {
-                if shouldReplay {
-                    self?.replayTargetKey()
-                }
-                return
-            }
-
-            // 4. Fallback: only simulate Cmd+C when AX could not determine selection (e.g. non-standard views)
+            // 4. Fallback: only simulate Cmd+C when outside editable fields or non-standard views
             let oldChangeCount = NSPasteboard.general.changeCount
             self?.simulateCmdC()
 
