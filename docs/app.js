@@ -23,6 +23,7 @@
 
       // Demo Box
       demoTitle: "Teams / Slack 沉浸输入体验",
+      editorPlaceholder: "把想去的地方排进每天的行程...",
       pill1: "日常对话",
       pill2: "端侧隐私",
       pill3: "商务往来",
@@ -74,6 +75,7 @@
 
       // Demo Box
       demoTitle: "Teams / Slack Frictionless Experience",
+      editorPlaceholder: "Plan your trip into everyday itinerary...",
       pill1: "Daily Chat",
       pill2: "On-Device",
       pill3: "Business Mail",
@@ -183,7 +185,7 @@
   const hudReplaceBtn = document.getElementById("hud-replace-btn");
   const demoPills = document.querySelectorAll(".demo-pill");
 
-  let currentLang = localStorage.getItem("st-lang") || (navigator.language?.startsWith("zh") ? "zh" : "zh");
+  let currentLang = localStorage.getItem("st-lang") || "zh";
   let activeScenarioIndex = 0;
   let demoTimer = 0;
   let demoToken = 0;

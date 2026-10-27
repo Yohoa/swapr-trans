@@ -1,9 +1,16 @@
 # SwaprTrans ⚡
 
-[![Platform](https://img.shields.io/badge/platform-macOS%2014.2%2B-lightgrey.svg)](https://www.apple.com/macos/)
-[![Language](https://img.shields.io/badge/language-Swift%206-orange.svg)](https://swift.org)
-[![Framework](https://img.shields.io/badge/framework-AppKit%20%7C%20SwiftUI-blue.svg)](https://developer.apple.com/xcode/swiftui/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+<p align="center">
+  <b>简体中文</b> | <b><a href="README_en.md">English</a></b>
+</p>
+
+<p align="center">
+  <a href="https://www.apple.com/macos/"><img src="https://img.shields.io/badge/platform-macOS%2014.2%2B-lightgrey.svg" alt="Platform"></a>
+  <a href="https://swift.org"><img src="https://img.shields.io/badge/language-Swift%206-orange.svg" alt="Language"></a>
+  <a href="https://developer.apple.com/xcode/swiftui/"><img src="https://img.shields.io/badge/framework-AppKit%20%7C%20SwiftUI-blue.svg" alt="Framework"></a>
+  <a href="https://github.com/linrol/swapr-trans/releases"><img src="https://img.shields.io/badge/binary-Universal%202%20(Intel%20%2B%20M--chip)-success.svg" alt="Universal 2"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"></a>
+</p>
 
 **SwaprTrans** 是一款专为 macOS 设计的极致轻量、纯原生的**全局划词翻译与原位覆写工具**。
 彻底打破“划词 -> 复制 -> 切换窗口 -> 粘贴 -> 翻译 -> 再复制回来”的传统低效链条。
