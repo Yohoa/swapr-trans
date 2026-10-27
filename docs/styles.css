@@ -587,6 +587,14 @@ body {
   transform: scale(0.97);
 }
 
+.hud-btn-copy.active {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35) !important;
+  transform: scale(0.97);
+}
+
 .demo-pills {
   display: flex;
   justify-content: center;

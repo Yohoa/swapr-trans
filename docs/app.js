@@ -24,10 +24,10 @@
       // Demo Box
       demoTitle: "Teams / Slack 沉浸输入体验",
       editorPlaceholder: "把想去的地方排进每天的行程...",
-      pill1: "日常对话",
-      pill2: "端侧隐私",
-      pill3: "商务往来",
-      pill4: "英译中反向",
+      pill1: "✍️ 聊天输入 · 原地覆写",
+      pill2: "📖 网页浏览 · 划词即翻",
+      pill3: "✉️ 商务邮件 · 原地覆写",
+      pill4: "💻 终端报错 · 查词对照",
 
       // Features
       feat1Title: " Apple 官方原生端侧模型",
@@ -76,10 +76,10 @@
       // Demo Box
       demoTitle: "Teams / Slack Frictionless Experience",
       editorPlaceholder: "Plan your trip into everyday itinerary...",
-      pill1: "Daily Chat",
-      pill2: "On-Device",
-      pill3: "Business Mail",
-      pill4: "English to Chinese",
+      pill1: "✍️ Chat · In-Place Rewrite",
+      pill2: "📖 Web · Select to Translate",
+      pill3: "✉️ Email · In-Place Rewrite",
+      pill4: "💻 Terminal · Error Lookup",
 
       // Features
       feat1Title: " Apple Official Native Neural Engine",
@@ -108,70 +108,108 @@
   };
 
   const scenarios = [
+    // 1. Chat input: In-place rewrite
     {
+      mode: "replace",
+      appTitle: {
+        zh: "Teams / Slack · 输入框原地覆写体验",
+        en: "Teams / Slack · In-Place Chat Rewrite"
+      },
       zh: {
+        prefix: "",
         input: "我的英语不怎么好",
+        suffix: "",
         dir: "ZH → EN",
         provider: "Microsoft (Edge)",
         orig: "我的英语不怎么好",
-        trans: "My English isn't very good",
+        trans: "My English isn't very good"
       },
       en: {
+        prefix: "",
         input: "我的英语不怎么好",
+        suffix: "",
         dir: "ZH → EN",
         provider: "Microsoft (Edge)",
         orig: "我的英语不怎么好",
-        trans: "My English isn't very good",
-      },
+        trans: "My English isn't very good"
+      }
     },
+    // 2. Web browsing: Select-to-translate & read (no overwrite)
     {
+      mode: "read",
+      appTitle: {
+        zh: "Safari / Chrome · 网页划词即翻与双语对照",
+        en: "Safari / Chrome · Select to Translate & Lookup"
+      },
       zh: {
-        input: "基于 Apple 神经引擎运行端侧模型，确保商业隐私安全。",
-        dir: "ZH → EN",
+        prefix: "The M4 chip delivers ",
+        input: "industry-leading performance and power efficiency",
+        suffix: " across demanding creative workflows.",
+        dir: "EN → ZH",
         provider: "Apple (Native)",
-        orig: "基于 Apple 神经引擎运行端侧模型，确保商业隐私安全。",
-        trans: "Running on-device models via Apple Neural Engine ensures business privacy.",
+        orig: "industry-leading performance and power efficiency",
+        trans: "行业领先的超强性能与出色能效表现"
       },
       en: {
-        input: "基于 Apple 神经引擎运行端侧模型，确保商业隐私安全。",
-        dir: "ZH → EN",
+        prefix: "The M4 chip delivers ",
+        input: "industry-leading performance and power efficiency",
+        suffix: " across demanding creative workflows.",
+        dir: "EN → ZH",
         provider: "Apple (Native)",
-        orig: "基于 Apple 神经引擎运行端侧模型，确保商业隐私安全。",
-        trans: "Running on-device models via Apple Neural Engine ensures business privacy.",
-      },
+        orig: "industry-leading performance and power efficiency",
+        trans: "行业领先的超强性能与出色能效表现"
+      }
     },
+    // 3. Business Email: In-place rewrite
     {
+      mode: "replace",
+      appTitle: {
+        zh: "Mail / Outlook · 商务邮件草稿原地蜕变",
+        en: "Mail / Outlook · Fluent Business Email Rewrite"
+      },
       zh: {
+        prefix: "",
         input: "期待与贵司团队建立长期稳固的合作关系，共促业务增长。",
         dir: "ZH → EN",
         provider: "Apple (Native)",
         orig: "期待与贵司团队建立长期稳固的合作关系，共促业务增长。",
-        trans: "We look forward to establishing a solid partnership with your team.",
+        trans: "We look forward to establishing a solid partnership with your team to drive mutual growth."
       },
       en: {
+        prefix: "",
         input: "期待与贵司团队建立长期稳固的合作关系，共促业务增长。",
         dir: "ZH → EN",
         provider: "Apple (Native)",
         orig: "期待与贵司团队建立长期稳固的合作关系，共促业务增长。",
-        trans: "We look forward to establishing a solid partnership with your team.",
-      },
+        trans: "We look forward to establishing a solid partnership with your team to drive mutual growth."
+      }
     },
+    // 4. Terminal/Docs: Tech term & error lookup (no overwrite)
     {
+      mode: "read",
+      appTitle: {
+        zh: "Terminal / Docs · 技术文档与报错对照",
+        en: "Terminal / Docs · Tech Term & Error Lookup"
+      },
       zh: {
-        input: "Could you please clarify the expected delivery timeline?",
+        prefix: "Error: connect ECONNREFUSED — ",
+        input: "Check if the backend daemon is actively listening.",
+        suffix: "",
         dir: "EN → ZH",
         provider: "Apple (Native)",
-        orig: "Could you please clarify the expected delivery timeline?",
-        trans: "请问能说明一下预期的交付时间节点吗？",
+        orig: "Check if the backend daemon is actively listening.",
+        trans: "检查后台守护进程是否已正常启动并监听端口。"
       },
       en: {
-        input: "Could you please clarify the expected delivery timeline?",
+        prefix: "Error: connect ECONNREFUSED — ",
+        input: "Check if the backend daemon is actively listening.",
+        suffix: "",
         dir: "EN → ZH",
         provider: "Apple (Native)",
-        orig: "Could you please clarify the expected delivery timeline?",
-        trans: "请问能说明一下预期的交付时间节点吗？",
-      },
-    },
+        orig: "Check if the backend daemon is actively listening.",
+        trans: "检查后台守护进程是否已正常启动并监听端口。"
+      }
+    }
   ];
 
   const root = document.documentElement;
@@ -183,6 +221,9 @@
   const hudOrigText = document.getElementById("hud-orig-text");
   const hudTransText = document.getElementById("hud-trans-text");
   const hudReplaceBtn = document.getElementById("hud-replace-btn");
+  const hudCopyBtn = document.getElementById("hud-copy-btn");
+  const hudCopyLabel = document.getElementById("hud-copy-label");
+  const demoWindowTitle = document.getElementById("demo-window-title");
   const demoPills = document.querySelectorAll(".demo-pill");
 
   let currentLang = localStorage.getItem("st-lang") || "zh";
@@ -230,51 +271,97 @@
   async function runDemo(token) {
     if (!textStream || !swaprHud) return;
 
-    const data = scenarios[activeScenarioIndex][currentLang];
+    const scene = scenarios[activeScenarioIndex];
+    const data = scene[currentLang];
+
+    if (demoWindowTitle && scene.appTitle) {
+      demoWindowTitle.textContent = scene.appTitle[currentLang] || scene.appTitle.zh;
+    }
 
     textStream.innerHTML = "";
     swaprHud.classList.remove("is-visible");
     if (hudReplaceBtn) hudReplaceBtn.classList.remove("active");
+    if (hudCopyBtn) {
+      hudCopyBtn.classList.remove("active");
+      if (hudCopyLabel) hudCopyLabel.textContent = "Copy";
+    }
 
     demoPills.forEach((pill, idx) => {
       pill.classList.toggle("active", idx === activeScenarioIndex);
     });
 
     try {
-      // 1. Type
-      for (let i = 1; i <= data.input.length; i++) {
-        textStream.textContent = data.input.slice(0, i);
-        await sleep(35 + (i % 4 === 0 ? 30 : 0), token);
+      if (scene.mode === "replace") {
+        // --- MODE 1: TYPE & REPLACE IN-PLACE ---
+        // 1. Type
+        for (let i = 1; i <= data.input.length; i++) {
+          textStream.textContent = data.input.slice(0, i);
+          await sleep(35 + (i % 4 === 0 ? 30 : 0), token);
+        }
+
+        await sleep(350, token);
+
+        // 2. Select text (mint green selection highlight)
+        textStream.innerHTML = `<span class="text-selected">${data.input}</span>`;
+        await sleep(350, token);
+
+        // 3. Float SwaprTrans HUD
+        if (hudDirText) hudDirText.textContent = data.dir;
+        if (hudProviderTag) hudProviderTag.textContent = data.provider;
+        if (hudOrigText) hudOrigText.textContent = data.orig;
+        if (hudTransText) hudTransText.textContent = data.trans;
+        swaprHud.classList.add("is-visible");
+
+        await sleep(1400, token);
+
+        // 4. Trigger Replace (Click / Enter effect)
+        if (hudReplaceBtn) hudReplaceBtn.classList.add("active");
+        await sleep(220, token);
+        if (hudReplaceBtn) hudReplaceBtn.classList.remove("active");
+
+        // 5. In-Place Rewrite
+        swaprHud.classList.remove("is-visible");
+        textStream.innerHTML = `<span class="text-replaced">${data.trans}</span>`;
+
+        // 6. Pause to appreciate
+        await sleep(3500, token);
+      } else {
+        // --- MODE 2: READING SELECTION TRANSLATE (NO OVERWRITE) ---
+        // 1. Full paragraph appears as read-only article / doc
+        textStream.innerHTML = `${data.prefix}${data.input}${data.suffix}`;
+        await sleep(400, token);
+
+        // 2. Mouse selection highlights target phrase
+        textStream.innerHTML = `${data.prefix}<span class="text-selected">${data.input}</span>${data.suffix}`;
+        await sleep(400, token);
+
+        // 3. Float SwaprTrans HUD with translation
+        if (hudDirText) hudDirText.textContent = data.dir;
+        if (hudProviderTag) hudProviderTag.textContent = data.provider;
+        if (hudOrigText) hudOrigText.textContent = data.orig;
+        if (hudTransText) hudTransText.textContent = data.trans;
+        swaprHud.classList.add("is-visible");
+
+        await sleep(1500, token);
+
+        // 4. User copies translation to clipboard (or just reads it)
+        if (hudCopyBtn) {
+          hudCopyBtn.classList.add("active");
+          if (hudCopyLabel) hudCopyLabel.textContent = "Copied!";
+        }
+        await sleep(650, token);
+        if (hudCopyBtn) hudCopyBtn.classList.remove("active");
+
+        // 5. HUD smoothly fades out, original article text stays completely intact!
+        await sleep(400, token);
+        swaprHud.classList.remove("is-visible");
+        textStream.innerHTML = `${data.prefix}${data.input}${data.suffix}`;
+
+        // 6. Pause to appreciate
+        await sleep(3000, token);
       }
 
-      await sleep(350, token);
-
-      // 2. Select text (with real mint green selection)
-      textStream.innerHTML = `<span class="text-selected">${data.input}</span>`;
-      await sleep(300, token);
-
-      // 3. Float SwaprTrans HUD
-      if (hudDirText) hudDirText.textContent = data.dir;
-      if (hudProviderTag) hudProviderTag.textContent = data.provider;
-      if (hudOrigText) hudOrigText.textContent = data.orig;
-      if (hudTransText) hudTransText.textContent = data.trans;
-      swaprHud.classList.add("is-visible");
-
-      await sleep(1400, token);
-
-      // 4. Trigger Replace (Click / Enter effect)
-      if (hudReplaceBtn) hudReplaceBtn.classList.add("active");
-      await sleep(200, token);
-      if (hudReplaceBtn) hudReplaceBtn.classList.remove("active");
-
-      // 5. In-Place Rewrite
-      swaprHud.classList.remove("is-visible");
-      textStream.innerHTML = `<span class="text-replaced">${data.trans}</span>`;
-
-      // 6. Pause to appreciate
-      await sleep(3400, token);
-
-      // 7. Next loop
+      // Next loop
       activeScenarioIndex = (activeScenarioIndex + 1) % scenarios.length;
       if (token === demoToken) {
         runDemo(token);
