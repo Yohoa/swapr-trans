@@ -859,12 +859,80 @@ body {
   color: var(--text);
 }
 
+/* FAQ Section */
+.faq-section {
+  padding: 80px 0 60px;
+}
+
+.faq-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 10px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.faq-sub {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto 36px;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.faq-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s var(--ease);
+}
+
+.faq-card:hover {
+  border-color: rgba(2, 132, 199, 0.35);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.faq-q {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.faq-q-icon {
+  font-size: 1rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.faq-a {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .nav-links {
     display: none;
   }
   .bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .faq-grid {
     grid-template-columns: 1fr;
   }
   .install-box {

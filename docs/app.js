@@ -6,6 +6,7 @@
       pageTitle: "SwaprTrans · 选词空格即翻，回车原地覆写",
       brandBadge: "原地瞬译",
       navFeatures: "特性",
+      navFaq: "常见问题",
       navInstall: "安装",
       navSdk: "开发库",
       ctaDownload: "下载 DMG",
@@ -43,6 +44,18 @@
       feat4Desc:
         "纯 Swift 原生打造，常驻内存微量。浮窗绝不夺取焦点；核心 SwaprTransKit 作为 Swift Package 完全开源开放。",
 
+      // FAQ
+      faqTitle: "常见问题解答 (FAQ)",
+      faqSub: "了解 SwaprTrans 的工作原理、隐私安全保障与核心用法",
+      faqQ1: "SwaprTrans 的「原地覆写」是如何工作的？",
+      faqA1: "在任意聊天框（Teams/Slack/微信）、邮件或终端中输入文字后，划选文字敲击空格键（默认触发键）唤起轻量翻译浮窗；确认译文后轻敲回车键，原文瞬间原子级替换为地道译文，光标与上下文完美保持，无需切屏和反复复制粘贴。",
+      faqQ2: "Apple 原生端侧模型是否支持脱网离线翻译？",
+      faqA2: "完全支持。在 macOS 15+ (Sequoia) 系统中，SwaprTrans 深度集成了 Apple 官方 Translation.framework 与 Neural Engine 神经引擎。在系统设置中下载本地离线语言包后，完全断网即可秒速离线推理，100% 隐私安全，机密沟通绝不上云。",
+      faqQ3: "是否支持修改默认快捷键？",
+      faqA3: "支持。默认触发快捷键为空格键（Space），同时在设置面板中预设了右键双击、方向键向下、Option + D、Option + T、Option + Space、F1 ~ F6 等多种高效手势与组合键，用户可按个人习惯自由选择。",
+      faqQ4: "第三方开发者如何集成 SwaprTrans？",
+      faqA4: "SwaprTrans 的核心能力已拆解封装为 SwaprTransKit，作为 Swift Package (SPM) 完全开源。开发者只需在 Package.swift 中引入依赖，即可在自己的 macOS 原生 App 中开箱即用集成划词瞬译与原地覆写能力。",
+
       // Install
       installTitle: "快速安装与授权",
       installStep1: "下载 <strong>SwaprTrans-1.0.2.dmg</strong> 并将 App 拖拽至 <strong>Applications</strong>；",
@@ -59,6 +72,7 @@
       pageTitle: "SwaprTrans · Select & Space to Translate, Enter to In-Place Rewrite",
       brandBadge: "In-Place Translator",
       navFeatures: "Features",
+      navFaq: "FAQ",
       navInstall: "Download",
       navSdk: "SPM SDK",
       ctaDownload: "Download DMG",
@@ -95,6 +109,18 @@
       feat4Title: "🪟 Non-Activating HUD & Open SPM",
       feat4Desc:
         "Pure Swift native build with negligible RAM usage. Never steals window focus; core SwaprTransKit open source via Swift Package.",
+
+      // FAQ
+      faqTitle: "Frequently Asked Questions (FAQ)",
+      faqSub: "Learn how SwaprTrans works, privacy safeguards, and advanced tips",
+      faqQ1: "How does SwaprTrans 'In-Place Rewrite' work?",
+      faqA1: "Type your draft in any chat box (Teams, Slack, WeChat), email, or terminal. Select the text and press Space to trigger the floating HUD. Tap Enter to atomically replace the original text with fluent translation in-place without copy-pasting.",
+      faqQ2: "Does the Apple on-device model support 100% offline translation?",
+      faqA2: "Yes. On macOS 15+ (Sequoia), SwaprTrans deeply integrates with Apple's official Translation.framework and Neural Engine. Once the offline language pack is downloaded in macOS System Settings, it translates offline without any internet connection.",
+      faqQ3: "Can I customize the trigger shortcut?",
+      faqA3: "Yes. Space is the default trigger key. You can also choose from presets including Right Double Click, Down Arrow, Option + D, Option + T, Option + Space, and F1–F6 in the settings panel.",
+      faqQ4: "How can developers integrate SwaprTrans in other apps?",
+      faqA4: "SwaprTrans core logic is modularized as SwaprTransKit, open sourced via Swift Package Manager. Developers can easily embed in-place translation into their macOS applications.",
 
       // Install
       installTitle: "Quick Start & Setup",
