@@ -43,6 +43,12 @@ public final class TranslateMonitor: @unchecked Sendable {
         115, 119, 116, 121, // home, end, page up, page down
         48, 53              // tab, esc
     ]
+    private static let selectionExtendKeyCodes: Set<Int64> = [123, 124, 125, 126, 115, 119, 116, 121]
+
+    // True after an explicit selection gesture (drag, double/triple click, Shift+click/arrow, Cmd+A).
+    // Some web views (e.g. Teams/WebView2) keep reporting the compose box caret over AX even when the user
+    // selected chat history text; this lets the Cmd+C fallback run instead of treating Space as typing.
+    private var hasSelectionGesture: Bool = false
 
     // Apps (notably Flutter / Electron) publish AX selection asynchronously, and the event tap sees the
     // trigger key before the app has even processed the preceding Shift+Arrow. If the trigger arrives
@@ -103,6 +109,7 @@ public final class TranslateMonitor: @unchecked Sendable {
         }
 
         var mask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.leftMouseDown.rawValue)
+        mask |= (1 << CGEventType.leftMouseDragged.rawValue)
         mask |= (1 << CGEventType.rightMouseDown.rawValue)
 
         guard let tap = CGEvent.tapCreate(
@@ -121,10 +128,18 @@ public final class TranslateMonitor: @unchecked Sendable {
                     return Unmanaged.passUnretained(event)
                 }
 
+                if type == .leftMouseDragged {
+                    TranslateMonitor.shared.hasSelectionGesture = true
+                    TranslateMonitor.shared.lastSelectionChangeUptime = ProcessInfo.processInfo.systemUptime
+                    return Unmanaged.passUnretained(event)
+                }
+
                 // Dismiss HUD when clicking outside (do not dismiss when clicking inside HUD so buttons trigger properly)
                 if type == .leftMouseDown {
                     TranslateMonitor.shared.isTypingSequence = false
                     TranslateMonitor.shared.lastSelectionChangeUptime = ProcessInfo.processInfo.systemUptime
+                    TranslateMonitor.shared.hasSelectionGesture =
+                        event.getIntegerValueField(.mouseEventClickState) >= 2 || event.flags.contains(.maskShift)
                     if TranslateMonitor.isHudVisible {
                         let loc = event.location
                         // CGEvent global coordinates are anchored to the primary display's top-left,
@@ -184,6 +199,17 @@ public final class TranslateMonitor: @unchecked Sendable {
                         && !TranslateMonitor.selectionNavKeyCodes.contains(keyCode)
                     if !m.isTypingSequence && keyCode != m.targetKeyCode {
                         m.lastSelectionChangeUptime = ProcessInfo.processInfo.systemUptime
+                    }
+                    if keyCode != m.targetKeyCode {
+                        let hasCommandOrControl = keyFlags.contains(.maskCommand) || keyFlags.contains(.maskControl)
+                        if keyFlags.contains(.maskShift) && TranslateMonitor.selectionExtendKeyCodes.contains(keyCode) {
+                            m.hasSelectionGesture = true
+                        } else if keyFlags.contains(.maskCommand),
+                                  NSEvent(cgEvent: event)?.charactersIgnoringModifiers?.lowercased() == "a" {
+                            m.hasSelectionGesture = true
+                        } else if !hasCommandOrControl {
+                            m.hasSelectionGesture = false
+                        }
                     }
 
                     // Esc key dismisses HUD
@@ -562,7 +588,7 @@ public final class TranslateMonitor: @unchecked Sendable {
         let frontPid = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
         // TIS APIs must run on the main thread; the tap callback is on the main run loop
         copyKeyCode = Self.resolveCommandKeyCode(for: "c") ?? Self.ansiCKeyCode
-        triggerSelectionTranslation(frontPid: frontPid, shouldReplay: shouldReplay)
+        triggerSelectionTranslation(frontPid: frontPid, shouldReplay: shouldReplay, hadSelectionGesture: hasSelectionGesture)
     }
 
     private static let ansiCKeyCode: CGKeyCode = 0x08
@@ -630,7 +656,7 @@ public final class TranslateMonitor: @unchecked Sendable {
         }
     }
 
-    private func triggerSelectionTranslation(frontPid: pid_t, shouldReplay: Bool) {
+    private func triggerSelectionTranslation(frontPid: pid_t, shouldReplay: Bool, hadSelectionGesture: Bool) {
         guard !isDetecting else { return }
         isDetecting = true
 
@@ -647,9 +673,9 @@ public final class TranslateMonitor: @unchecked Sendable {
                 return
             }
 
-            // 2. If in an editable input field and confirmed typing state (zero-length caret, or editable without definite selection):
-            // User is 100% typing! Replay key directly and NEVER invoke simulateCmdC()!
-            if axInfo.isZeroLengthCaret || (axInfo.isEditableField && !axInfo.hasDefiniteSelection) {
+            // 2. Editable caret without a preceding selection gesture means typing: replay without Cmd+C.
+            // After a selection gesture, AX may still expose an unrelated caret, so let Cmd+C verify it.
+            if !hadSelectionGesture && (axInfo.isZeroLengthCaret || (axInfo.isEditableField && !axInfo.hasDefiniteSelection)) {
                 if shouldReplay {
                     self?.replayTargetKey()
                 }
