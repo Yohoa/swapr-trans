@@ -1,0 +1,14 @@
+.DS_Store
+/.build
+/Packages
+xcuserdata/
+*.xcodeproj
+*.xcworkspace
+
+# Not published: upstream README and the original task note
+/README.md
+/HANDOFF.md
+
+# dist/: only the newest installer is tracked
+/dist/*
+!/dist/SwaprTrans-1.5.1.dmg

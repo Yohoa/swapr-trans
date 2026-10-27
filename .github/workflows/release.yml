@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release DMG
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          brew install create-dmg
+
+      - name: Build DMG Package
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          chmod +x ./scripts/build-app.sh ./scripts/build-dmg.sh
+          ./scripts/build-dmg.sh "$VERSION"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/SwaprTrans-*.dmg
+          generate_release_notes: true
+          draft: false
+          prerelease: false
