@@ -15,8 +15,8 @@
 **SwaprTrans** is an ultra-lightweight, native **in-place translation tool** built exclusively for macOS.  
 It shatters the traditional friction loop: *"select -> copy -> switch app -> paste -> translate -> copy back -> overwrite"*.
 
-> **🚀 Select text, tap Enter, in-place rewrite!**  
-> In any active input box (Teams, Slack, WeChat, email client, browser, or terminal), select any text and trigger the shortcut. Press **`Enter`** once, and your original draft is atomically transformed into fluent, idiomatic target text!
+> **🚀 Select & Space to translate, Enter to in-place rewrite!**  
+> In any active input box (Teams, Slack, WeChat, email client, browser, or terminal), select any text and hit the default shortcut **`Space`** to summon the instant translation HUD. Tap **`Enter`** once, and your original draft is atomically transformed into fluent, idiomatic target text!
 
 ---
 
@@ -75,7 +75,8 @@ Visit the [Releases Page](https://github.com/linrol/swapr-trans/releases) and do
 1. Open the DMG image;
 2. Drag `SwaprTrans.app` into your **`Applications`** folder;
 3. **First Launch**: If prompted by macOS Gatekeeper, right-click `SwaprTrans.app` in Finder and click **「Open」**;
-4. **Grant Permission**: Grant **Accessibility** permission in System Settings when prompted (required to detect selected text and perform in-place replacement).
+4. **Grant Permission**: Grant **Accessibility** permission in System Settings when prompted (required to detect selected text and perform in-place replacement);
+5. **Apple Native On-Device Engine Notice**: If using the Apple Native Translation engine (macOS 15+), macOS will prompt you to download the offline language pack on first use. You can also pre-download offline packages in **System Settings → General → Language & Region → Translation Languages**. Once downloaded, it operates 100% offline.
 
 > [!TIP]
 > **Updating an existing installation**: If you replace the app manually, toggle SwaprTrans OFF and ON once in **System Settings → Privacy & Security → Accessibility** to refresh macOS permission caching. Or simply use the in-app **Update & Restart** button for seamless upgrades!

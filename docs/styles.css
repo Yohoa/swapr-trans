@@ -403,7 +403,7 @@ body {
   padding: 24px;
   position: relative;
   background: #ffffff;
-  min-height: 250px;
+  min-height: 275px;
 }
 
 .editor-fake-toolbar {
@@ -541,8 +541,8 @@ body {
 /* Exact Real-App SwaprTrans HUD (1:1 with Screenshot) */
 .swapr-hud {
   position: absolute;
-  top: 48px;
-  left: 28px;
+  top: 76px;
+  left: 24px;
   width: 320px;
   background: rgba(244, 245, 247, 0.88);
   backdrop-filter: blur(28px) saturate(190%);

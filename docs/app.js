@@ -3,7 +3,7 @@
 
   const strings = {
     zh: {
-      pageTitle: "SwaprTrans · 选词即翻，回车原地覆写",
+      pageTitle: "SwaprTrans · 选词空格即翻，回车原地覆写",
       brandBadge: "原地瞬译",
       navFeatures: "特性",
       navInstall: "安装",
@@ -12,10 +12,10 @@
 
       // Hero
       eyebrow: "macOS 15+ 官方端侧驱动 · 选词瞬译",
-      heroTitle1: "选词即翻，",
+      heroTitle1: "选词空格即翻，",
       heroTitle2: "回车原地覆写。",
       heroSub:
-        "彻底告别切屏复制与反复粘贴。在任意输入框中划选文字，按下快捷键，轻敲一次回车键，原文即刻原子级蜕变为地道外文。",
+        "在任意聊天框、浏览器或输入区域中划选文字，敲击空格键（默认触发键）瞬起轻盈浮窗；按下回车键，原文原子级蜕变为地道译文！",
       ctaDownloadHero: "下载 SwaprTrans v1.0.2 (DMG)",
       metaChip: " Apple 原生神经引擎",
       metaPrivacy: "100% 隐私·不上云",
@@ -33,9 +33,9 @@
       feat1Title: " Apple 官方原生端侧模型",
       feat1Desc:
         "深度集成 macOS 15+ Translation.framework。纯芯片本地神经引擎离线运算，零网络依赖，商业机密与私密沟通 100% 安全。",
-      feat2Title: "⚡️ 回车瞬间「原地覆写」",
+      feat2Title: "⚡️ 空格瞬译 · 回车「原地覆写」",
       feat2Desc:
-        "消灭多余的鼠标操作与复制粘贴。浮窗浮起后轻触 Enter 回车，原文直接替换为地道译文，光标位置平滑保持。",
+        "消灭多余的鼠标操作与复制粘贴。划选后按空格唤起轻盈浮窗，敲击回车直接替换为地道译文，光标与上下文丝滑保持。",
       feat3Title: "🌐 三引擎智能容灾与自适应",
       feat3Desc:
         "默认 Apple 本地端侧推理；辅以 Microsoft Edge 极速免 Key 通道与 Google Translate 自动无感平滑兜底。",
@@ -47,7 +47,8 @@
       installTitle: "快速安装与授权",
       installStep1: "下载 <strong>SwaprTrans-1.0.2.dmg</strong> 并将 App 拖拽至 <strong>Applications</strong>；",
       installStep2: "首次打开：若遇 Gatekeeper 提示，在访达中<strong>右键点击 App → 点击「打开」</strong>；",
-      installStep3: "按系统提示授予<strong>「辅助功能」(Accessibility)</strong> 权限，即刻开启选词原地覆写体验。",
+      installStep3: "按系统提示授予<strong>「辅助功能」(Accessibility)</strong> 权限，即刻开启选词原地覆写体验；",
+      installStep4: "若使用 <strong>Apple 原生端侧模型</strong>，系统首次使用会提示下载离线语言包（亦可在 <strong>系统设置 → 通用 → 语言与地区 → 翻译语言</strong> 提前下载），完成后即可完全脱网离线运行。",
       btnDownloadBox: "下载 SwaprTrans-1.0.2.dmg (1.9MB)",
 
       // Footer
@@ -55,7 +56,7 @@
     },
 
     en: {
-      pageTitle: "SwaprTrans · Select to Translate, Enter to In-Place Rewrite",
+      pageTitle: "SwaprTrans · Select & Space to Translate, Enter to In-Place Rewrite",
       brandBadge: "In-Place Translator",
       navFeatures: "Features",
       navInstall: "Download",
@@ -64,10 +65,10 @@
 
       // Hero
       eyebrow: "macOS 15+ Native On-Device Engine · Instant Translation",
-      heroTitle1: "Select to Translate,",
+      heroTitle1: "Space to Translate,",
       heroTitle2: "Enter to In-Place Rewrite.",
       heroSub:
-        "Break free from the friction of copy-pasting and window switching. Select text in any app, hit shortcut, and tap Enter—original text transforms atomically in-place.",
+        "Select text anywhere and hit Space (default shortcut) to summon instant translation. Press Enter to atomically rewrite in-place without copy-pasting.",
       ctaDownloadHero: "Download SwaprTrans v1.0.2 (DMG)",
       metaChip: " Apple Native Neural Engine",
       metaPrivacy: "100% Private · On-Device",
@@ -85,9 +86,9 @@
       feat1Title: " Apple Official Native Neural Engine",
       feat1Desc:
         "Deeply integrated with macOS 15+ Translation.framework. Computes entirely on local Apple Silicon chips with zero network reliance.",
-      feat2Title: "⚡️ Instant In-Place Rewrite",
+      feat2Title: "⚡️ Space to Translate · Enter to Rewrite",
       feat2Desc:
-        "Eliminates clumsy copy-pasting. Tap Enter when HUD floats to atomically replace the selected text with authentic translation.",
+        "Eliminates clumsy copy-pasting. Tap Space on selected text to summon HUD, then tap Enter to atomically replace with authentic translation.",
       feat3Title: "🌐 Tri-Engine Smart Failover",
       feat3Desc:
         "Defaults to Apple local offline engine, with seamless fallback to Microsoft Edge fast keyless lane and Google Translate.",
@@ -99,7 +100,8 @@
       installTitle: "Quick Start & Setup",
       installStep1: "Download <strong>SwaprTrans-1.0.2.dmg</strong> and drag the App to <strong>Applications</strong>;",
       installStep2: "First run: if prompted by Gatekeeper, right-click <strong>SwaprTrans.app → Open</strong> in Finder;",
-      installStep3: "Grant <strong>Accessibility</strong> permission to allow instant selection detection and in-place rewrite.",
+      installStep3: "Grant <strong>Accessibility</strong> permission to allow instant selection detection and in-place rewrite;",
+      installStep4: "If using the <strong>Apple Native On-Device engine</strong>, macOS will prompt you to download the offline language pack on first use (or pre-download in <strong>System Settings → General → Language & Region → Translation Languages</strong>). Once downloaded, it operates 100% offline.",
       btnDownloadBox: "Download SwaprTrans-1.0.2.dmg (1.9MB)",
 
       // Footer
@@ -274,6 +276,23 @@
     });
   }
 
+  function positionHud() {
+    if (!swaprHud || !textStream) return;
+    const demoBody = document.getElementById("demo-body");
+    if (!demoBody) return;
+    const targetEl = textStream.querySelector(".text-selected") || textStream;
+    const bodyRect = demoBody.getBoundingClientRect();
+    const targetRect = targetEl.getBoundingClientRect();
+
+    // Position HUD 10px below the bottom of the selected text to guarantee zero obstruction
+    const top = Math.round(targetRect.bottom - bodyRect.top + 10);
+    // Align with left edge of selected text, bounded within demo body
+    const left = Math.round(Math.max(20, Math.min(targetRect.left - bodyRect.left, bodyRect.width - 340)));
+
+    swaprHud.style.top = `${top}px`;
+    swaprHud.style.left = `${left}px`;
+  }
+
   async function runDemo(token) {
     if (!textStream || !swaprHud) return;
 
@@ -353,16 +372,17 @@
         textStream.innerHTML = `<span class="text-selected">${data.input}</span>`;
         await sleep(350, token);
 
-        // 3. Float SwaprTrans HUD
+        // 3. Float SwaprTrans HUD (Triggered by Space)
         if (hudDirText) hudDirText.textContent = data.dir;
         if (hudProviderTag) hudProviderTag.textContent = data.provider;
         if (hudOrigText) hudOrigText.textContent = data.orig;
         if (hudTransText) hudTransText.textContent = data.trans;
+        positionHud();
         swaprHud.classList.add("is-visible");
 
         await sleep(1400, token);
 
-        // 4. Trigger Replace (Click / Enter effect)
+        // 4. Trigger Replace (Enter key / Replace button)
         if (hudReplaceBtn) hudReplaceBtn.classList.add("active");
         await sleep(220, token);
         if (hudReplaceBtn) hudReplaceBtn.classList.remove("active");
@@ -383,11 +403,12 @@
         textStream.innerHTML = `${data.prefix}<span class="text-selected">${data.input}</span>${data.suffix}`;
         await sleep(400, token);
 
-        // 3. Float SwaprTrans HUD with translation
+        // 3. Float SwaprTrans HUD with translation (Triggered by Space)
         if (hudDirText) hudDirText.textContent = data.dir;
         if (hudProviderTag) hudProviderTag.textContent = data.provider;
         if (hudOrigText) hudOrigText.textContent = data.orig;
         if (hudTransText) hudTransText.textContent = data.trans;
+        positionHud();
         swaprHud.classList.add("is-visible");
 
         await sleep(1500, token);
