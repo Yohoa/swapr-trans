@@ -249,6 +249,7 @@ public final class TranslationHudController: NSObject {
         }
 
         p.setFrame(NSRect(x: posX, y: posY, width: targetWidth, height: targetHeight), display: true, animate: false)
+        p.invalidateShadow()
 
         // Smooth fade-in animation
         p.alphaValue = 0
@@ -298,10 +299,13 @@ public final class TranslationHudController: NSObject {
             frame.origin.y = screen.maxY - frame.height - 10
         }
 
-        NSAnimationContext.runAnimationGroup { ctx in
+        NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.15
             p.animator().setFrame(frame, display: true)
-        }
+        }, completionHandler: {
+            // Native shadow is computed from the window's alpha mask; refresh after content/size changes
+            p.invalidateShadow()
+        })
         TranslateMonitor.cachedHudFrame = frame
     }
 
@@ -659,7 +663,9 @@ public struct TranslationHudView: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.25), radius: 15, x: 0, y: 6)
+        // No SwiftUI .shadow here: the panel is sized to the card, so a view shadow gets clipped at the
+        // window edge and is then re-shadowed by the native window shadow (grey halo). The panel's
+        // native shadow already follows the rounded card shape.
         .applyAppleTranslation(model: model)
     }
 }
