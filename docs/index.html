@@ -140,9 +140,9 @@
 
         <div class="nav-links">
           <a href="#features" data-i18n="navFeatures">特性</a>
-          <a href="#faq" data-i18n="navFaq">常见问题</a>
           <a href="#install" data-i18n="navInstall">安装</a>
           <a href="https://github.com/linrol/swapr-trans" target="_blank" rel="noopener noreferrer" data-i18n="navSdk">GitHub / SPM</a>
+          <a href="#faq" data-i18n="navFaq">常见问题</a>
         </div>
 
         <div class="nav-actions">
@@ -348,7 +348,9 @@
             <div class="bento-card">
               <div class="bento-card-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
+                  <rect x="9" y="9" width="6" height="6" />
+                  <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
                 </svg>
               </div>
               <h3 data-i18n="feat1Title"> Apple 官方原生端侧模型</h3>
@@ -397,47 +399,6 @@
         </div>
       </section>
 
-      <!-- FAQ Section (SEO Structured Content & User Guidance) -->
-      <section id="faq" class="faq-section">
-        <div class="container">
-          <h2 class="faq-title" data-i18n="faqTitle">常见问题解答 (FAQ)</h2>
-          <p class="faq-sub" data-i18n="faqSub">了解 SwaprTrans 的工作原理、隐私安全保障与核心用法</p>
-          <div class="faq-grid">
-            <article class="faq-card">
-              <h3 class="faq-q">
-                <span class="faq-q-icon">✦</span>
-                <span data-i18n="faqQ1">SwaprTrans 的「原地覆写」是如何工作的？</span>
-              </h3>
-              <p class="faq-a" data-i18n="faqA1">在任意聊天框（Teams/Slack/微信）、邮件或终端中输入文字后，划选文字敲击空格键（默认触发键）唤起轻量翻译浮窗；确认译文后轻敲回车键，原文瞬间原子级替换为地道译文，光标与上下文完美保持，无需切屏和反复复制粘贴。</p>
-            </article>
-
-            <article class="faq-card">
-              <h3 class="faq-q">
-                <span class="faq-q-icon"></span>
-                <span data-i18n="faqQ2">Apple 原生端侧模型是否支持脱网离线翻译？</span>
-              </h3>
-              <p class="faq-a" data-i18n="faqA2">完全支持。在 macOS 15+ (Sequoia) 系统中，SwaprTrans 深度集成了 Apple 官方 Translation.framework 与 Neural Engine 神经引擎。在系统设置中下载本地离线语言包后，完全断网即可秒速离线推理，100% 隐私安全，机密沟通绝不上云。</p>
-            </article>
-
-            <article class="faq-card">
-              <h3 class="faq-q">
-                <span class="faq-q-icon">⌨️</span>
-                <span data-i18n="faqQ3">是否支持修改默认快捷键？</span>
-              </h3>
-              <p class="faq-a" data-i18n="faqA3">支持。默认触发快捷键为空格键（Space），同时在设置面板中预设了右键双击、方向键向下、Option + D、Option + T、Option + Space、F1 ~ F6 等多种高效手势与组合键，用户可按个人习惯自由选择。</p>
-            </article>
-
-            <article class="faq-card">
-              <h3 class="faq-q">
-                <span class="faq-q-icon">📦</span>
-                <span data-i18n="faqQ4">第三方开发者如何集成 SwaprTrans？</span>
-              </h3>
-              <p class="faq-a" data-i18n="faqA4">SwaprTrans 的核心能力已拆解封装为 SwaprTransKit，作为 Swift Package (SPM) 完全开源。开发者只需在 Package.swift 中引入依赖，即可在自己的 macOS 原生 App 中开箱即用集成划词瞬译与原地覆写能力。</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
       <!-- Compact Installation & Setup -->
       <section id="install" class="install-section">
         <div class="container">
@@ -479,6 +440,47 @@
                 $ git clone https://github.com/linrol/swapr-trans &amp;&amp; ./scripts/install.sh
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section (SEO Structured Content & User Guidance) -->
+      <section id="faq" class="faq-section">
+        <div class="container">
+          <h2 class="faq-title" data-i18n="faqTitle">常见问题解答 (FAQ)</h2>
+          <p class="faq-sub" data-i18n="faqSub">了解 SwaprTrans 的工作原理、隐私安全保障与核心用法</p>
+          <div class="faq-grid">
+            <article class="faq-card">
+              <h3 class="faq-q">
+                <span class="faq-q-icon">✦</span>
+                <span data-i18n="faqQ1">SwaprTrans 的「原地覆写」是如何工作的？</span>
+              </h3>
+              <p class="faq-a" data-i18n="faqA1">在任意聊天框（Teams/Slack/微信）、邮件或终端中输入文字后，划选文字敲击空格键（默认触发键）唤起轻量翻译浮窗；确认译文后轻敲回车键，原文瞬间原子级替换为地道译文，光标与上下文完美保持，无需切屏和反复复制粘贴。</p>
+            </article>
+
+            <article class="faq-card">
+              <h3 class="faq-q">
+                <span class="faq-q-icon"></span>
+                <span data-i18n="faqQ2">Apple 原生端侧模型是否支持脱网离线翻译？</span>
+              </h3>
+              <p class="faq-a" data-i18n="faqA2">完全支持。在 macOS 15+ (Sequoia) 系统中，SwaprTrans 深度集成了 Apple 官方 Translation.framework 与 Neural Engine 神经引擎。在系统设置中下载本地离线语言包后，完全断网即可秒速离线推理，100% 隐私安全，机密沟通绝不上云。</p>
+            </article>
+
+            <article class="faq-card">
+              <h3 class="faq-q">
+                <span class="faq-q-icon">⌨️</span>
+                <span data-i18n="faqQ3">是否支持修改默认快捷键？</span>
+              </h3>
+              <p class="faq-a" data-i18n="faqA3">支持。默认触发快捷键为空格键（Space），同时在设置面板中预设了右键双击、方向键向下、Option + D、Option + T、Option + Space、F1 ~ F6 等多种高效手势与组合键，用户可按个人习惯自由选择。</p>
+            </article>
+
+            <article class="faq-card">
+              <h3 class="faq-q">
+                <span class="faq-q-icon">📦</span>
+                <span data-i18n="faqQ4">第三方开发者如何集成 SwaprTrans？</span>
+              </h3>
+              <p class="faq-a" data-i18n="faqA4">SwaprTrans 的核心能力已拆解封装为 SwaprTransKit，作为 Swift Package (SPM) 完全开源。开发者只需在 Package.swift 中引入依赖，即可在自己的 macOS 原生 App 中开箱即用集成划词瞬译与原地覆写能力。</p>
+            </article>
           </div>
         </div>
       </section>

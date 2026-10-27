@@ -70,11 +70,11 @@
 
     en: {
       pageTitle: "SwaprTrans · Select & Space to Translate, Enter to In-Place Rewrite",
-      brandBadge: "In-Place Translator",
+      brandBadge: "In-Place",
       navFeatures: "Features",
-      navFaq: "FAQ",
       navInstall: "Download",
       navSdk: "SPM SDK",
+      navFaq: "FAQ",
       ctaDownload: "Download DMG",
 
       // Hero
