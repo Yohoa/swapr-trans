@@ -16,7 +16,7 @@
       heroTitle2: "回车原地覆写。",
       heroSub:
         "彻底告别切屏复制与反复粘贴。在任意输入框中划选文字，按下快捷键，轻敲一次回车键，原文即刻原子级蜕变为地道外文。",
-      ctaDownloadHero: "下载 SwaprTrans v1.0.0 (DMG)",
+      ctaDownloadHero: "下载 SwaprTrans v1.0.1 (DMG)",
       metaChip: " Apple 原生神经引擎",
       metaPrivacy: "100% 隐私·不上云",
       metaWeight: "轻量 < 2MB",
@@ -44,10 +44,10 @@
 
       // Install
       installTitle: "快速安装与授权",
-      installStep1: "下载 <strong>SwaprTrans-1.0.0.dmg</strong> 并将 App 拖拽至 <strong>Applications</strong>；",
+      installStep1: "下载 <strong>SwaprTrans-1.0.1.dmg</strong> 并将 App 拖拽至 <strong>Applications</strong>；",
       installStep2: "首次打开：若遇 Gatekeeper 提示，在访达中<strong>右键点击 App → 点击「打开」</strong>；",
       installStep3: "按系统提示授予<strong>「辅助功能」(Accessibility)</strong> 权限，即刻开启选词原地覆写体验。",
-      btnDownloadBox: "下载 SwaprTrans-1.0.0.dmg (1.9MB)",
+      btnDownloadBox: "下载 SwaprTrans-1.0.1.dmg (1.9MB)",
 
       // Footer
       footerText: "SwaprTrans · 专为 macOS 打造的极简原生选词瞬译与原地覆写工具",
@@ -67,7 +67,7 @@
       heroTitle2: "Enter to In-Place Rewrite.",
       heroSub:
         "Break free from the friction of copy-pasting and window switching. Select text in any app, hit shortcut, and tap Enter—original text transforms atomically in-place.",
-      ctaDownloadHero: "Download SwaprTrans v1.0.0 (DMG)",
+      ctaDownloadHero: "Download SwaprTrans v1.0.1 (DMG)",
       metaChip: " Apple Native Neural Engine",
       metaPrivacy: "100% Private · On-Device",
       metaWeight: "Lightweight < 2MB",
@@ -95,10 +95,10 @@
 
       // Install
       installTitle: "Quick Start & Setup",
-      installStep1: "Download <strong>SwaprTrans-1.0.0.dmg</strong> and drag the App to <strong>Applications</strong>;",
+      installStep1: "Download <strong>SwaprTrans-1.0.1.dmg</strong> and drag the App to <strong>Applications</strong>;",
       installStep2: "First run: if prompted by Gatekeeper, right-click <strong>SwaprTrans.app → Open</strong> in Finder;",
       installStep3: "Grant <strong>Accessibility</strong> permission to allow instant selection detection and in-place rewrite.",
-      btnDownloadBox: "Download SwaprTrans-1.0.0.dmg (1.9MB)",
+      btnDownloadBox: "Download SwaprTrans-1.0.1.dmg (1.9MB)",
 
       // Footer
       footerText: "SwaprTrans · The lightweight native in-place translation tool for macOS",
