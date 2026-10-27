@@ -111,6 +111,7 @@
     // 1. Chat input: In-place rewrite
     {
       mode: "replace",
+      theme: "chat",
       appTitle: {
         zh: "Teams / Slack · 输入框原地覆写体验",
         en: "Teams / Slack · In-Place Chat Rewrite"
@@ -137,9 +138,11 @@
     // 2. Web browsing: Select-to-translate & read (no overwrite)
     {
       mode: "read",
+      theme: "browser",
+      browserUrl: "developer.apple.com/documentation/translation",
       appTitle: {
-        zh: "Safari / Chrome · 网页划词即翻与双语对照",
-        en: "Safari / Chrome · Select to Translate & Lookup"
+        zh: "Safari · 网页划词即翻与双语对照",
+        en: "Safari · Select to Translate & Lookup"
       },
       zh: {
         prefix: "The M4 chip delivers ",
@@ -163,6 +166,7 @@
     // 3. Business Email: In-place rewrite
     {
       mode: "replace",
+      theme: "chat",
       appTitle: {
         zh: "Mail / Outlook · 商务邮件草稿原地蜕变",
         en: "Mail / Outlook · Fluent Business Email Rewrite"
@@ -187,9 +191,11 @@
     // 4. Terminal/Docs: Tech term & error lookup (no overwrite)
     {
       mode: "read",
+      theme: "terminal",
+      terminalPrompt: "linrol@iMac ~ % ",
       appTitle: {
-        zh: "Terminal / Docs · 技术文档与报错对照",
-        en: "Terminal / Docs · Tech Term & Error Lookup"
+        zh: "Terminal — zsh — 80×24",
+        en: "Terminal — zsh — 80×24"
       },
       zh: {
         prefix: "Error: connect ECONNREFUSED — ",
@@ -273,6 +279,48 @@
 
     const scene = scenarios[activeScenarioIndex];
     const data = scene[currentLang];
+
+    const demoCard = document.getElementById("demo-card");
+    const demoBarTitleWrap = document.getElementById("demo-bar-title-wrap");
+    const demoBrowserBar = document.getElementById("demo-browser-bar");
+    const browserUrlText = document.getElementById("browser-url-text");
+    const terminalPrompt = document.getElementById("terminal-prompt");
+    const editorFakeToolbar = document.getElementById("editor-fake-toolbar");
+    const terminalFakeStatusbar = document.getElementById("terminal-fake-statusbar");
+    const demoCaret = document.getElementById("demo-caret");
+
+    if (demoCard) {
+      demoCard.className = `demo-card theme-${scene.theme || "chat"}`;
+    }
+
+    if (scene.theme === "browser") {
+      if (demoBarTitleWrap) demoBarTitleWrap.style.display = "none";
+      if (demoBrowserBar) {
+        demoBrowserBar.style.display = "flex";
+        if (browserUrlText) browserUrlText.textContent = scene.browserUrl || "developer.apple.com";
+      }
+      if (terminalPrompt) terminalPrompt.style.display = "none";
+      if (editorFakeToolbar) editorFakeToolbar.style.display = "none";
+      if (terminalFakeStatusbar) terminalFakeStatusbar.style.display = "none";
+      if (demoCaret) demoCaret.style.display = "none";
+    } else if (scene.theme === "terminal") {
+      if (demoBarTitleWrap) demoBarTitleWrap.style.display = "flex";
+      if (demoBrowserBar) demoBrowserBar.style.display = "none";
+      if (terminalPrompt) {
+        terminalPrompt.style.display = "inline";
+        terminalPrompt.textContent = scene.terminalPrompt || "linrol@iMac ~ % ";
+      }
+      if (editorFakeToolbar) editorFakeToolbar.style.display = "none";
+      if (terminalFakeStatusbar) terminalFakeStatusbar.style.display = "flex";
+      if (demoCaret) demoCaret.style.display = "none";
+    } else {
+      if (demoBarTitleWrap) demoBarTitleWrap.style.display = "flex";
+      if (demoBrowserBar) demoBrowserBar.style.display = "none";
+      if (terminalPrompt) terminalPrompt.style.display = "none";
+      if (editorFakeToolbar) editorFakeToolbar.style.display = "flex";
+      if (terminalFakeStatusbar) terminalFakeStatusbar.style.display = "none";
+      if (demoCaret) demoCaret.style.display = "inline-block";
+    }
 
     if (demoWindowTitle && scene.appTitle) {
       demoWindowTitle.textContent = scene.appTitle[currentLang] || scene.appTitle.zh;

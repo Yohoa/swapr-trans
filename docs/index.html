@@ -139,30 +139,42 @@
           </div>
 
           <!-- Interactive macOS Live Demo Box -->
-          <div class="demo-card">
+          <div id="demo-card" class="demo-card theme-chat">
             <div class="demo-bar">
               <div class="demo-dots">
                 <span class="demo-dot red"></span>
                 <span class="demo-dot yellow"></span>
                 <span class="demo-dot green"></span>
               </div>
-              <div class="demo-title">
-                <span id="demo-window-title" data-i18n="demoTitle">Teams / Slack 沉浸输入体验</span>
+              <div class="demo-title" id="demo-bar-title-wrap">
+                <span id="demo-window-title" data-i18n="demoTitle">Teams / Slack · 输入框原地覆写体验</span>
+              </div>
+              <!-- Safari Address Bar (visible in browser mode) -->
+              <div class="demo-browser-bar" id="demo-browser-bar" style="display: none;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span id="browser-url-text">developer.apple.com/documentation/translation</span>
               </div>
             </div>
-            <div class="demo-body">
-              <div class="input-surface">
-                <span id="text-stream" class="text-stream">我的英语不怎么好</span><span class="caret"></span>
+            <div class="demo-body" id="demo-body">
+              <div class="input-surface" id="input-surface">
+                <span id="terminal-prompt" class="terminal-prompt" style="display: none;">linrol@iMac ~ % </span>
+                <span id="text-stream" class="text-stream">我的英语不怎么好</span><span class="caret" id="demo-caret"></span>
               </div>
 
-              <!-- Editor bottom toolbar mimic -->
-              <div class="editor-fake-toolbar">
+              <!-- Editor bottom toolbar mimic (chat & email mode) -->
+              <div class="editor-fake-toolbar" id="editor-fake-toolbar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
                 <span data-i18n="editorPlaceholder" style="font-size: 11px; margin-left: auto; color: #cbd5e1;">把想去的地方排进每天的行程...</span>
+              </div>
+
+              <!-- Terminal bottom status bar (terminal mode) -->
+              <div class="terminal-fake-statusbar" id="terminal-fake-statusbar" style="display: none;">
+                <span>zsh 5.9 (x86_64 / arm64)</span>
+                <span style="margin-left: auto;">UTF-8 · macOS</span>
               </div>
 
               <!-- Real Pixel-Matched SwaprTrans HUD -->
