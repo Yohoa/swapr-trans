@@ -42,7 +42,7 @@
 ```swift
 // Package.swift
 dependencies: [
-    .package(url: "https://gitee.com/linrol/swapr-trans.git", from: "1.0.0")
+    .package(url: "https://github.com/linrol/swapr-trans.git", from: "1.0.2")
 ],
 targets: [
     .target(
