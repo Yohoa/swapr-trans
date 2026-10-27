@@ -32,7 +32,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/SwaprTrans-*.dmg
+          files: |
+            dist/SwaprTrans-*.dmg
+            dist/version.json
           generate_release_notes: true
           draft: false
           prerelease: false

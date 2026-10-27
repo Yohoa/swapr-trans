@@ -8,6 +8,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         ProcessInfo.processInfo.disableAutomaticTermination("SwaprTrans MenuBar Daemon")
         ProcessInfo.processInfo.disableSuddenTermination()
+
+        UpdateManager.shared.startBackgroundCheck()
     }
 }
 

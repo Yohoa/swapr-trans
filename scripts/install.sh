@@ -38,6 +38,7 @@ BUILD_NUMBER="1"
 
 GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
 GIT_DATE=$(git log -1 --format="%cd" --date=short 2>/dev/null || echo "")
+GIT_MSG=$(git log -1 --format="%s" 2>/dev/null || echo "")
 
 cat <<INFOEOF > "$CONTENTS_DIR/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -64,6 +65,8 @@ cat <<INFOEOF > "$CONTENTS_DIR/Info.plist"
     <string>${GIT_COMMIT}</string>
     <key>GitCommitDate</key>
     <string>${GIT_DATE}</string>
+    <key>GitCommitMessage</key>
+    <string>${GIT_MSG}</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.2</string>
     <key>LSUIElement</key>

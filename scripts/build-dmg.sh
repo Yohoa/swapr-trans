@@ -53,7 +53,25 @@ fi
 
 rm -rf "$STAGE"
 
+# Generate version.json for auto-updater
+GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "release")
+GIT_DATE=$(git log -1 --format="%cd" --date=short 2>/dev/null || echo "")
+GIT_MSG=$(git log -1 --format="%s" 2>/dev/null || echo "")
+
+VERSION_JSON="$ROOT/dist/version.json"
+cat <<JSONEOF > "$VERSION_JSON"
+{
+  "version": "${VERSION}",
+  "commit": "${GIT_COMMIT}",
+  "date": "${GIT_DATE}",
+  "message": "${GIT_MSG}",
+  "dmgUrl": "https://github.com/linrol/swapr-trans/releases/download/v${VERSION}/SwaprTrans-${VERSION}.dmg"
+}
+JSONEOF
+cp -f "$VERSION_JSON" "$ROOT/version.json"
+
 echo "=========================================="
 echo "  🎉 Built DMG: $DMG"
+echo "  📄 Generated: $VERSION_JSON"
 ls -lh "$DMG"
 echo "=========================================="
