@@ -18,8 +18,8 @@
   --radius: 16px;
   --radius-lg: 24px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
   color-scheme: light;
 }
 
@@ -45,46 +45,20 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Luminous Ambient Glow (Soft Pearl & Sky Pastels) */
+/* Luminous Ambient Glow (Hardware Accelerated, Zero-Blur Gradient) */
 .ambient {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1200px;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-}
-
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(130px);
-  opacity: 0.45;
-  will-change: transform;
-}
-
-.blob-a {
-  width: 600px;
-  height: 600px;
-  top: -150px;
-  left: 20%;
-  background: radial-gradient(circle, #bae6fd 0%, rgba(186, 230, 253, 0) 70%);
-}
-
-.blob-b {
-  width: 550px;
-  height: 550px;
-  top: 35%;
-  right: -80px;
-  background: radial-gradient(circle, #ddd6fe 0%, rgba(221, 214, 254, 0) 70%);
-}
-
-.blob-c {
-  width: 500px;
-  height: 500px;
-  bottom: -100px;
-  left: -50px;
-  background: radial-gradient(circle, #fed7aa 0%, rgba(254, 215, 170, 0) 70%);
-  opacity: 0.35;
+  background:
+    radial-gradient(circle 500px at 25% 0%, rgba(186, 230, 253, 0.45) 0%, transparent 70%),
+    radial-gradient(circle 450px at 85% 25%, rgba(221, 214, 254, 0.4) 0%, transparent 70%),
+    radial-gradient(circle 400px at 15% 65%, rgba(254, 215, 170, 0.25) 0%, transparent 70%);
 }
 
 .container {

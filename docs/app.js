@@ -294,7 +294,7 @@
   }
 
   async function runDemo(token) {
-    if (!textStream || !swaprHud) return;
+    if (!textStream || !swaprHud || !isDemoVisible) return;
 
     const scene = scenarios[activeScenarioIndex];
     const data = scene[currentLang];
@@ -432,7 +432,7 @@
 
       // Next loop
       activeScenarioIndex = (activeScenarioIndex + 1) % scenarios.length;
-      if (token === demoToken) {
+      if (token === demoToken && isDemoVisible) {
         runDemo(token);
       }
     } catch {
@@ -440,10 +440,36 @@
     }
   }
 
+  let isDemoVisible = true;
+
   function restartDemo() {
     demoToken += 1;
     window.clearTimeout(demoTimer);
-    runDemo(demoToken);
+    if (isDemoVisible) {
+      runDemo(demoToken);
+    }
+  }
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (!isDemoVisible) {
+              isDemoVisible = true;
+              restartDemo();
+            }
+          } else {
+            isDemoVisible = false;
+            demoToken += 1;
+            window.clearTimeout(demoTimer);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    const demoCardEl = document.getElementById("demo-card");
+    if (demoCardEl) observer.observe(demoCardEl);
   }
 
   langButtons.forEach((btn) => {
