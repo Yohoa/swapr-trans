@@ -69,7 +69,13 @@ SwaprTransSettingsView()
 
 ## 📥 下载与安装
 
-### 方式一：下载 Release 安装包（推荐）
+### 方式一：Homebrew 一键安装（推荐）
+
+```bash
+brew install linrol/tap/swapr-trans
+```
+
+### 方式二：下载 Release 安装包
 前往 [Releases 页面](https://github.com/linrol/swapr-trans/releases) 下载最新版本的 `SwaprTrans-x.x.x.dmg`：
 1. 打开 DMG 文件；
 2. 将 `SwaprTrans.app` 拖入 `Applications`（应用程序目录）；
