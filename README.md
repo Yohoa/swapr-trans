@@ -74,11 +74,8 @@ SwaprTransSettingsView()
 ## 🛠️ 本地构建与开发
 
 ```bash
-# 1. 本地编译并就地安装至 /Applications
+# 本地编译并就地安装至 /Applications
 ./scripts/install.sh
-
-# 2. 本地构建分发用 DMG 安装包
-./scripts/build-dmg.sh 1.0.0
 ```
 
 ## ⚖️ 许可证
