@@ -12,22 +12,43 @@ echo "=========================================="
 echo "  🔨 Building SwaprTrans.app (v${VERSION}) ... "
 echo "=========================================="
 
-# 1. Build release binary
-swift build -c release
-
-BIN_DIR="$(swift build -c release --show-bin-path)"
 DIST_DIR="$ROOT/dist"
 APP="$DIST_DIR/SwaprTrans.app"
 CONTENTS="$APP/Contents"
 MACOS="$CONTENTS/MacOS"
 RESOURCES="$CONTENTS/Resources"
 
-# 2. Package App Bundle
+# 1. Package App Bundle directory
 rm -rf "$APP"
 mkdir -p "$MACOS" "$RESOURCES"
 
-cp -f "$BIN_DIR/SwaprTrans" "$MACOS/SwaprTrans"
+# 2. Build Universal 2 binary (arm64 + x86_64)
+echo "--> Compiling Universal 2 binary (arm64 + x86_64)..."
+ARM64_OK=0
+if swift build -c release --triple arm64-apple-macosx; then
+    ARM64_OK=1
+fi
+
+X86_OK=0
+if swift build -c release --triple x86_64-apple-macosx; then
+    X86_OK=1
+fi
+
+ARM64_BIN="$ROOT/.build/arm64-apple-macosx/release/SwaprTrans"
+X86_BIN="$ROOT/.build/x86_64-apple-macosx/release/SwaprTrans"
+
+if [ "$ARM64_OK" -eq 1 ] && [ "$X86_OK" -eq 1 ] && [ -f "$ARM64_BIN" ] && [ -f "$X86_BIN" ]; then
+    echo "    Merging arm64 and x86_64 into Universal 2 binary with lipo..."
+    lipo -create -output "$MACOS/SwaprTrans" "$ARM64_BIN" "$X86_BIN"
+else
+    echo "    Fallback: compiling host native architecture..."
+    swift build -c release
+    BIN_DIR="$(swift build -c release --show-bin-path)"
+    cp -f "$BIN_DIR/SwaprTrans" "$MACOS/SwaprTrans"
+fi
+
 chmod +x "$MACOS/SwaprTrans"
+file "$MACOS/SwaprTrans"
 
 if [ -f "$ROOT/assets/AppIcon.icns" ]; then
   cp -f "$ROOT/assets/AppIcon.icns" "$RESOURCES/AppIcon.icns"

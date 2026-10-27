@@ -39,7 +39,7 @@ public final class UpdateManager: NSObject, ObservableObject {
     ]
 
     public var localVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.1"
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.2"
     }
 
     public var localCommit: String {
