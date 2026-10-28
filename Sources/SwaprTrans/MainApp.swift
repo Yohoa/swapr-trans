@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !SwaprTransConfig.shared.hasOnboarded {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { WelcomeWindowController.shared.show() }
         }
+        UpdateManager.shared.startBackgroundCheck()
     }
 }
 

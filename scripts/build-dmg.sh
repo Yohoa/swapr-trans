@@ -53,6 +53,23 @@ fi
 
 rm -rf "$STAGE"
 
+# 3. version.json for the in-app updater: upload it as a release asset (tag = version, no "v",
+#    so the CI workflow isn't triggered) and commit it on main as the fallback endpoint.
+SHA=$(shasum -a 256 "$DMG" | awk '{print $1}')
+NOTES="${RELEASE_NOTES:-}"
+python3 - "$VERSION" "$SHA" "$NOTES" > "$ROOT/version.json" <<'PYEOF'
+import json, sys, datetime
+version, sha, notes = sys.argv[1:4]
+print(json.dumps({
+    "version": version,
+    "date": datetime.date.today().isoformat(),
+    "notes": notes,
+    "dmgUrl": f"https://github.com/Yohoa/swapr-trans/releases/download/{version}/SwaprTrans-{version}.dmg",
+    "sha256": sha,
+}, indent=2, ensure_ascii=False))
+PYEOF
+echo "  📝 version.json → $SHA"
+
 echo "=========================================="
 echo "  🎉 Built DMG: $DMG"
 ls -lh "$DMG"

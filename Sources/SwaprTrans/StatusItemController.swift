@@ -25,9 +25,13 @@ final class StatusItemController: NSObject, NSWindowDelegate {
             button.action = #selector(togglePopup)
         }
         let config = SwaprTransConfig.shared
-        config.$isEnabled.combineLatest(config.$hasAccessibilityPermission)
+        config.$isEnabled.combineLatest(config.$hasAccessibilityPermission, UpdateManager.shared.$phase)
             .receive(on: RunLoop.main)
-            .sink { [weak self] enabled, permitted in self?.updateIcon(active: enabled && permitted) }
+            .sink { [weak self] enabled, permitted, phase in
+                var hasUpdate = false
+                if case .available = phase { hasUpdate = true }
+                self?.updateIcon(active: enabled && permitted, badge: hasUpdate)
+            }
             .store(in: &cancellables)
         // Switching to another app dismisses the popup, like a menu
         NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)
@@ -42,11 +46,22 @@ final class StatusItemController: NSObject, NSWindowDelegate {
             .store(in: &cancellables)
     }
 
-    private func updateIcon(active: Bool) {
-        let image = NSImage(systemSymbolName: "translate", accessibilityDescription: "SwaprTrans")
-        image?.isTemplate = true
+    private func updateIcon(active: Bool, badge: Bool) {
+        guard let symbol = NSImage(systemSymbolName: "translate", accessibilityDescription: "SwaprTrans") else { return }
+        var image = symbol
+        if badge {
+            // A dot in the corner: an update is waiting in the popup
+            image = NSImage(size: symbol.size, flipped: false) { rect in
+                symbol.draw(in: rect)
+                let d = rect.width * 0.38
+                NSBezierPath(ovalIn: NSRect(x: rect.maxX - d, y: rect.maxY - d, width: d, height: d)).fill()
+                return true
+            }
+        }
+        image.isTemplate = true
         statusItem.button?.image = image
         statusItem.button?.appearsDisabled = !active
+        statusItem.button?.toolTip = badge ? "SwaprTrans — update available" : "SwaprTrans"
     }
 
     @objc private func togglePopup() {

@@ -824,6 +824,7 @@ public final class TranslateMonitor: @unchecked Sendable {
                 if shouldReplay {
                     self?.replayTrigger(count: replayCount)
                 }
+                TranslateMonitor.showNoSelectionHint()
                 return
             }
 
@@ -866,6 +867,14 @@ public final class TranslateMonitor: @unchecked Sendable {
             if shouldReplay {
                 self?.replayTrigger(count: replayCount)
             }
+            TranslateMonitor.showNoSelectionHint()
+        }
+    }
+
+    /// The shortcut fired but found no text: say so next to the pointer instead of doing nothing.
+    private static func showNoSelectionHint() {
+        DispatchQueue.main.async {
+            NoSelectionToast.shared.show()
         }
     }
 

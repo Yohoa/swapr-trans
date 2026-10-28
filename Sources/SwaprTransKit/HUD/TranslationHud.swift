@@ -105,6 +105,12 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
         }
     }
 
+    /// Whether the translation window is on screen (and not fading out).
+    public var isVisible: Bool {
+        guard let p = panel else { return false }
+        return p.isVisible && !isHiding
+    }
+
     /// Whether a plain Return should replace the selection right now (checked by the event tap).
     public var acceptsReturn: Bool {
         guard let p = panel, p.isVisible, !isHiding else { return false }
