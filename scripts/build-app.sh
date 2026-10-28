@@ -12,10 +12,10 @@ echo "=========================================="
 echo "  🔨 Building SwaprTrans.app (v${VERSION}) ... "
 echo "=========================================="
 
-# 1. Build release binary
-swift build -c release
+# 1. Build a Universal 2 binary (Apple silicon + Intel)
+swift build -c release --arch arm64 --arch x86_64
+BIN_DIR="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)"
 
-BIN_DIR="$(swift build -c release --show-bin-path)"
 DIST_DIR="$ROOT/dist"
 APP="$DIST_DIR/SwaprTrans.app"
 CONTENTS="$APP/Contents"

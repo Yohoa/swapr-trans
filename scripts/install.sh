@@ -12,6 +12,15 @@ echo "=========================================="
 swift build -c release
 
 BIN_PATH="$REPO_ROOT/.build/release/SwaprTrans"
+ARM64_BIN="$REPO_ROOT/.build/arm64-apple-macosx/release/SwaprTrans"
+X86_BIN="$REPO_ROOT/.build/x86_64-apple-macosx/release/SwaprTrans"
+
+if [ -f "$ARM64_BIN" ] && [ -f "$X86_BIN" ]; then
+    echo "Merging Universal 2 binary with lipo for installation..."
+    lipo -create -output "/tmp/SwaprTrans_install_bin" "$ARM64_BIN" "$X86_BIN"
+    BIN_PATH="/tmp/SwaprTrans_install_bin"
+fi
+
 APP_DEST="/Applications/SwaprTrans.app"
 CONTENTS_DIR="$APP_DEST/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
@@ -27,6 +36,7 @@ mkdir -p "$RESOURCES_DIR"
 
 cp -f "$BIN_PATH" "$MACOS_DIR/SwaprTrans"
 chmod +x "$MACOS_DIR/SwaprTrans"
+rm -f "/tmp/SwaprTrans_install_bin"
 
 if [ -f "$REPO_ROOT/assets/AppIcon.icns" ]; then
     cp -f "$REPO_ROOT/assets/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
@@ -38,6 +48,7 @@ BUILD_NUMBER="1"
 
 GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
 GIT_DATE=$(git log -1 --format="%cd" --date=short 2>/dev/null || echo "")
+GIT_MSG=$(git log -1 --format="%s" 2>/dev/null || echo "")
 
 cat <<INFOEOF > "$CONTENTS_DIR/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -64,6 +75,8 @@ cat <<INFOEOF > "$CONTENTS_DIR/Info.plist"
     <string>${GIT_COMMIT}</string>
     <key>GitCommitDate</key>
     <string>${GIT_DATE}</string>
+    <key>GitCommitMessage</key>
+    <string>${GIT_MSG}</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.2</string>
     <key>LSUIElement</key>
