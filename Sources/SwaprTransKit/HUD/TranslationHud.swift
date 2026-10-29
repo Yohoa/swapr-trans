@@ -26,6 +26,10 @@ public final class TranslationHudModel: ObservableObject {
     @Published public var speakingIndex: Int? = nil
     /// Sample shown from Settings or the welcome guide: there is no selection to replace.
     @Published public var isPreview: Bool = false
+    /// Shown beside the result right after a copy or replace, so the action visibly happened.
+    @Published public var confirmation: HudConfirmation? = nil
+    /// Clicked in "Do nothing" mode: the window stays until it is closed, ignoring auto dismiss.
+    @Published public var isPinned: Bool = false
 
     /// The result that Replace / Copy / Speak / Enter act on.
     public var selected: SwaprTranslation? {
@@ -70,9 +74,29 @@ final class ClickThroughHostingView<Content: View>: AutoSizingHostingView<Conten
 /// What clicking a translation's text does (chosen in Settings ➔ Window).
 public enum TranslationClickAction: String, CaseIterable, Identifiable {
     case replace, copy
+    /// The window just stays; with auto dismiss on, a click also keeps it from closing.
+    case nothing
     public static let storageKey = "swapr_trans_click_action"
     public var id: String { rawValue }
-    public var label: String { self == .replace ? "Replace" : "Copy" }
+    public var label: String {
+        switch self {
+        case .replace: return "Replace"
+        case .copy: return "Copy"
+        case .nothing: return "Do nothing (keep open)"
+        }
+    }
+}
+
+public struct HudConfirmation: Equatable {
+    public enum Kind: Equatable { case copied, replaced }
+    public let kind: Kind
+    /// The result it applies to; nil = all of them (Copy All / Replace All).
+    public let index: Int?
+    public init(_ kind: Kind, index: Int?) {
+        self.kind = kind
+        self.index = index
+    }
+    func applies(to i: Int) -> Bool { index == nil || index == i }
 }
 
 @MainActor
@@ -88,6 +112,9 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
     /// Set from hide() until its fade-out finishes; a new show during the fade cancels the hide.
     private var isHiding = false
     private var isHovering = false
+    private var confirmationWork: DispatchWorkItem?
+    /// How long the Copied / Replaced badge stays; a replace closes the window when it ends.
+    private static let confirmationDuration = 0.9
 
     private override init() {
         super.init()
@@ -114,7 +141,7 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
     /// Whether a plain Return should replace the selection right now (checked by the event tap).
     public var acceptsReturn: Bool {
         guard let p = panel, p.isVisible, !isHiding else { return false }
-        return !model.isPreview && !model.isLoading && model.errorMessage == nil
+        return !model.isPreview && !model.isLoading && model.errorMessage == nil && model.confirmation == nil
             && model.targetPid > 0 && !(model.selected?.text.isEmpty ?? true)
     }
 
@@ -181,11 +208,35 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
         }
     }
 
-    /// Copies `text`, keeping the window open.
-    private func copy(_ text: String) {
+    /// Copies `text`, keeping the window open; `index` is the result it came from (nil = all).
+    private func copy(_ text: String, index: Int?) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.declareTypes([.string], owner: nil)
         NSPasteboard.general.setString(text, forType: .string)
+        confirm(HudConfirmation(.copied, index: index))
+    }
+
+    /// Shows Copied / Replaced beside the result; after a replace the window closes once it has been seen.
+    private func confirm(_ confirmation: HudConfirmation) {
+        confirmationWork?.cancel()
+        model.confirmation = confirmation
+        let work = DispatchWorkItem { [weak self] in
+            guard let self = self, self.model.confirmation == confirmation else { return }
+            if confirmation.kind == .replaced {
+                self.hide()
+            } else {
+                self.model.confirmation = nil
+            }
+        }
+        confirmationWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.confirmationDuration, execute: work)
+    }
+
+    /// "Do nothing" click: keep the window until it is closed.
+    private func pin() {
+        model.isPinned = true
+        dismissTimer?.invalidate()
+        dismissTimer = nil
     }
 
     /// All results, one per line; labelled with their language when there are several.
@@ -202,25 +253,28 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
             },
             onReplace: { [weak self] index in
                 guard let self = self, self.model.results.indices.contains(index) else { return }
-                self.replaceSelection(with: self.model.results[index].text, in: self.model.targetPid)
+                self.replaceSelection(with: self.model.results[index].text, in: self.model.targetPid, index: index)
             },
             onCopy: { [weak self] index in
                 guard let self = self, self.model.results.indices.contains(index) else { return }
-                self.copy(self.model.results[index].text)
+                self.copy(self.model.results[index].text, index: index)
             },
             onReplaceAll: { [weak self] in
                 guard let self = self else { return }
-                self.replaceSelection(with: self.allResults(labelled: false), in: self.model.targetPid)
+                self.replaceSelection(with: self.allResults(labelled: false), in: self.model.targetPid, index: nil)
             },
             onCopyAll: { [weak self] in
                 guard let self = self else { return }
-                self.copy(self.allResults(labelled: true))
+                self.copy(self.allResults(labelled: true), index: nil)
             },
             onSpeak: { [weak self] index in
                 self?.toggleSpeech(index: index)
             },
             onRetry: {
                 TranslateMonitor.shared.retryTranslation()
+            },
+            onPin: { [weak self] in
+                self?.pin()
             },
             onHover: { [weak self] inside in
                 self?.isHovering = inside
@@ -271,6 +325,7 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
         model.isLoading = true
         model.errorMessage = nil
         model.isPreview = false
+        clearConfirmation()
 
         if let p = panel, p.isVisible, !isHiding {
             updatePanelContentAndGeometry()
@@ -317,6 +372,7 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
         model.isLoading = false
         model.errorMessage = nil
         model.isPreview = preview
+        clearConfirmation()
 
         if let p = panel, p.isVisible, !isHiding {
             updatePanelContentAndGeometry()
@@ -331,6 +387,7 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
         guard let p = panel, let hv = hostingView else { return }
         // Cancels a fade-out still in progress, so its completion doesn't hide this new content
         isHiding = false
+        model.isPinned = false
 
         hv.layoutSubtreeIfNeeded()
         let size = hv.fittingSize
@@ -367,16 +424,22 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
         TranslateMonitor.cachedHudFrame = p.frame
     }
 
+    private func clearConfirmation() {
+        confirmationWork?.cancel()
+        confirmationWork = nil
+        model.confirmation = nil
+    }
+
     private func startAutoDismissTimer(after interval: Double? = nil) {
         dismissTimer?.invalidate()
         dismissTimer = nil
         let delay = interval ?? Double(SwaprTransConfig.shared.autoDismissSeconds)
-        guard delay > 0, let p = panel, p.isVisible, !isHiding else { return }
+        guard delay > 0, !model.isPinned, let p = panel, p.isVisible, !isHiding else { return }
         let timer = Timer(timeInterval: delay, repeats: false) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self = self else { return }
-                // Never cut off speech or close under the pointer: check again shortly
-                if self.model.speakingIndex != nil || self.isHovering {
+                // Never cut off speech, a confirmation or close under the pointer: check again shortly
+                if self.model.speakingIndex != nil || self.model.confirmation != nil || self.isHovering {
                     self.startAutoDismissTimer(after: 1)
                 } else {
                     self.hide()
@@ -410,6 +473,7 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
                 guard let self = self, self.isHiding else { return }
                 self.isHiding = false
                 p.orderOut(nil)
+                self.clearConfirmation()
             }
         })
     }
@@ -417,14 +481,14 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
     /// Supports pressing Enter to trigger replacement directly
     public func triggerReplaceFromEnterKey() {
         guard acceptsReturn else { return }
-        replaceSelection(with: model.translated, in: model.targetPid)
+        replaceSelection(with: model.translated, in: model.targetPid, index: model.selectedIndex)
     }
 
     private var isReplacing: Bool = false
 
-    private func replaceSelection(with text: String, in pid: pid_t) {
+    private func replaceSelection(with text: String, in pid: pid_t, index: Int?) {
         // Without the app the text came from, Cmd+V would land in whatever happens to be frontmost
-        guard !isReplacing, !text.isEmpty, pid > 0, !model.isPreview else { return }
+        guard !isReplacing, model.confirmation?.kind != .replaced, !text.isEmpty, pid > 0, !model.isPreview else { return }
         isReplacing = true
         defer {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
@@ -432,8 +496,9 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
             }
         }
 
-        // 1. Hide HUD floating window first to yield screen overlay
-        hide()
+        // 1. Keep the window up showing Replaced; it closes when that ends. The panel never
+        // takes focus, so the paste below still lands in the target app.
+        confirm(HudConfirmation(.replaced, index: index))
 
         // 2. Write translated text to system pasteboard
         NSPasteboard.general.clearContents()
@@ -498,6 +563,7 @@ public struct TranslationHudView: View {
     let onCopyAll: () -> Void
     let onSpeak: (Int) -> Void
     let onRetry: () -> Void
+    let onPin: () -> Void
     let onHover: (Bool) -> Void
     let onClose: () -> Void
 
@@ -509,13 +575,15 @@ public struct TranslationHudView: View {
 
     private static let resultFont = NSFont.systemFont(ofSize: 15, weight: .regular)
     private var isMulti: Bool { model.results.count > 1 }
+    /// Width of the language tags, wide enough for "ZH-T".
+    private var tagWidth: CGFloat { model.results.contains { $0.language.short.count > 2 } ? 40 : 30 }
     private var canAct: Bool { !model.isLoading && model.errorMessage == nil && !model.results.isEmpty }
     /// Previews have nothing to replace, so clicking copies there.
     private var clickAction: TranslationClickAction {
         model.isPreview ? .copy : (TranslationClickAction(rawValue: clickActionRaw) ?? .replace)
     }
 
-    /// Fits the longest line of the shown text, between 340 and 540pt.
+    /// Fits the longest line of the shown text, between 340 (400 with several results) and 540pt.
     private var cardWidth: CGFloat {
         let texts = (model.isLoading || model.results.isEmpty) ? [model.original] : model.results.map(\.text)
         var widest: CGFloat = 0
@@ -524,8 +592,9 @@ public struct TranslationHudView: View {
             guard !trimmed.isEmpty else { continue }
             widest = max(widest, (trimmed as NSString).size(withAttributes: [.font: Self.resultFont]).width)
         }
-        let chrome: CGFloat = isMulti ? 32 + 56 : 32 + 16
-        return max(340, min(540, ceil(widest) + chrome))
+        let chrome: CGFloat = isMulti ? 32 + 26 + tagWidth : 32 + 16
+        // Several results need room for the hint beside Copy All and Replace All
+        return max(isMulti ? 400 : 340, min(540, ceil(widest) + chrome))
     }
 
     private var isLongText: Bool {
@@ -565,6 +634,7 @@ public struct TranslationHudView: View {
         .glassCard(.popover, solidity: config.hudOpacity)
         .onHover(perform: onHover)
         .applyAppleTranslation(model: model)
+        .animation(.easeOut(duration: 0.2), value: model.confirmation)
         .onChange(of: model.results.map(\.text)) { _, _ in
             copiedIndex = nil
             copiedAll = false
@@ -600,6 +670,13 @@ public struct TranslationHudView: View {
                 .lineLimit(1)
 
             Spacer(minLength: 4)
+
+            if model.isPinned && config.autoDismissSeconds > 0 {
+                Image(systemName: "pin.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .help("Stays open until you close it")
+            }
 
             Button(action: onClose) {
                 Image(systemName: "xmark")
@@ -659,7 +736,7 @@ public struct TranslationHudView: View {
                     Text(result.language.short)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(isSelected ? Color.white : .secondary)
-                        .frame(width: 30, height: 20)
+                        .frame(width: tagWidth, height: 20)
                         .background(Capsule().fill(isSelected ? Color.accentColor : Color.primary.opacity(0.08)))
                 }
                 Text(result.text)
@@ -667,13 +744,21 @@ public struct TranslationHudView: View {
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                if let done = model.confirmation, done.applies(to: index) {
+                    Label(done.kind == .copied ? "Copied" : "Replaced",
+                          systemImage: done.kind == .copied ? "checkmark.circle.fill" : "arrow.turn.down.left")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.green)
+                        .fixedSize()
+                        .transition(.opacity)
+                }
             }
             .contentShape(Rectangle())
             .onTapGesture { runClickAction(index) }
-            .help(clickAction == .replace ? "Click to replace the selection with this" : "Click to copy")
+            .help(clickHelp)
 
             HStack(spacing: 6) {
-                if isMulti { Spacer().frame(width: 30) }
+                if isMulti { Spacer().frame(width: tagWidth) }
                 if TranslationHudController.voice(for: result.language) != nil {
                     speakButton(index)
                 }
@@ -732,6 +817,15 @@ public struct TranslationHudView: View {
         switch clickAction {
         case .replace: onReplace(index)
         case .copy: copy(index)
+        case .nothing: onPin()
+        }
+    }
+
+    private var clickHelp: String {
+        switch clickAction {
+        case .replace: return "Click to replace the selection with this"
+        case .copy: return "Click to copy"
+        case .nothing: return config.autoDismissSeconds > 0 ? "Click to keep this window open" : ""
         }
     }
 
@@ -755,6 +849,7 @@ public struct TranslationHudView: View {
                 Label(copiedAll ? "Copied" : "Copy All", systemImage: copiedAll ? "checkmark" : "doc.on.doc")
             }
             .controlSize(.large)
+            .fixedSize()
 
             if !model.isPreview {
                 Button(action: onReplaceAll) {
@@ -762,6 +857,7 @@ public struct TranslationHudView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .fixedSize()
                 .help("Replace the selection with every translation, one per line")
             }
         }

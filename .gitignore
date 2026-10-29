@@ -11,5 +11,5 @@ xcuserdata/
 
 # dist/: only the newest installer is tracked
 /dist/*
-!/dist/SwaprTrans-1.6.0.dmg
+!/dist/SwaprTrans-1.7.0.dmg
 /.idea/

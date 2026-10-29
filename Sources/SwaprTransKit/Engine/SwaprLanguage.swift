@@ -10,10 +10,11 @@ public struct SwaprLanguage: Identifiable, Hashable, Sendable {
     public let name: String
     public var id: String { code }
 
-    public var isChinese: Bool { code == "zh-Hans" }
+    public var isChinese: Bool { code.hasPrefix("zh-") }
 
     public static let all: [SwaprLanguage] = [
         .init(code: "zh-Hans", google: "zh-CN", short: "ZH", name: "Chinese (Simplified)"),
+        .init(code: "zh-Hant", google: "zh-TW", short: "ZH-T", name: "Chinese (Traditional)"),
         .init(code: "en", google: "en", short: "EN", name: "English"),
         .init(code: "nl", google: "nl", short: "NL", name: "Dutch"),
         .init(code: "de", google: "de", short: "DE", name: "German"),
@@ -33,8 +34,12 @@ public struct SwaprLanguage: Identifiable, Hashable, Sendable {
     /// is already in the only target language.
     static var systemPreferred: [SwaprLanguage] {
         Locale.preferredLanguages.compactMap { id in
-            guard let base = Locale.Language(identifier: id).languageCode?.identifier else { return nil }
-            return base == "zh" ? byCode("zh-Hans") : byCode(base)
+            let language = Locale.Language(identifier: id)
+            guard let base = language.languageCode?.identifier else { return nil }
+            guard base == "zh" else { return byCode(base) }
+            let traditional = language.script == .hanTraditional
+                || (language.script == nil && ["TW", "HK", "MO"].contains(language.region?.identifier ?? ""))
+            return byCode(traditional ? "zh-Hant" : "zh-Hans")
         }
     }
 }
@@ -154,13 +159,25 @@ public struct SwaprLanguagePair: Sendable {
         return SwaprDirection(from: newFrom, to: [oldFrom]).label
     }
 
+    /// Simplified or Traditional: text with characters that only exist in Traditional is Traditional;
+    /// text made only of characters shared by both scripts counts as Simplified.
+    static func byScript(_ text: String, among chinese: [SwaprLanguage]) -> SwaprLanguage {
+        let simplified = text.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? text
+        let code = simplified != text ? "zh-Hant" : "zh-Hans"
+        return chinese.first { $0.code == code } ?? chinese[0]
+    }
+
     /// Detects which of `candidates` the text is written in.
     static func detect(_ text: String, among candidates: [SwaprLanguage]) -> SwaprLanguage? {
         var pool = candidates
-        if let zh = pool.first(where: \.isChinese) {
+        let chinese = pool.filter(\.isChinese)
+        if !chinese.isEmpty {
             let hasKana = text.unicodeScalars.contains { (0x3040...0x30FF).contains($0.value) }
             if hasKana, let ja = pool.first(where: { $0.code == "ja" }) { return ja }
-            if !hasKana && TranslationEngine.isChineseDominant(text) { return zh }
+            if !hasKana && TranslationEngine.isChineseDominant(text) {
+                guard chinese.count > 1 else { return chinese[0] }
+                return byScript(text, among: chinese)
+            }
             pool.removeAll(where: \.isChinese)
         }
         guard !pool.isEmpty else { return nil }

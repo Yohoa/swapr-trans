@@ -211,7 +211,7 @@ public enum SwaprPreview {
         let config = SwaprTransConfig.shared
         let targets = SwaprLanguagePair.current.targets
         let samples: [String: String] = [
-            "zh-Hans": "这是翻译窗口的预览。", "en": "This is a preview of the translation window.",
+            "zh-Hans": "这是翻译窗口的预览。", "zh-Hant": "這是翻譯視窗的預覽。", "en": "This is a preview of the translation window.",
             "nl": "Dit is een voorbeeld van het vertaalvenster.", "de": "Dies ist eine Vorschau des Übersetzungsfensters.",
             "fr": "Ceci est un aperçu de la fenêtre de traduction.", "es": "Esta es una vista previa de la ventana de traducción.",
             "it": "Questa è un'anteprima della finestra di traduzione.", "pt": "Esta é uma prévia da janela de tradução.",

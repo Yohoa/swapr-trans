@@ -1,7 +1,7 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "date": "2026-10-29",
-  "notes": "Built-in updates from now on. A hint next to the pointer when the shortcut fires with no text selected.",
-  "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.6.0/SwaprTrans-1.6.0.dmg",
-  "sha256": "a86b169ac6d31cd7ca415a287b33c5f524351c4796ae29e6ae84b5b032b5a7a7"
+  "notes": "Copied / Replaced shown beside the translation. New click option: Do nothing (keep open) — a click also stops auto dismiss. Traditional Chinese.",
+  "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.7.0/SwaprTrans-1.7.0.dmg",
+  "sha256": "65d8a7e0d797ece8391159bb6b69a77481d3b8c4cddc63b9c906e3d5114a83a7"
 }
