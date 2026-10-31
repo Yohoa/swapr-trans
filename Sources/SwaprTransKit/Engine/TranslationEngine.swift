@@ -48,6 +48,8 @@ public struct SwaprTranslation: Equatable, Sendable {
 
 public enum TranslationProvider: String, CaseIterable, Identifiable, Codable {
     case apple = "apple"
+    /// Apple's on-device language model (macOS 26+, Apple silicon, Apple Intelligence turned on).
+    case appleIntelligence = "apple_intelligence"
     case microsoft = "microsoft"
     case google = "google"
 
@@ -55,6 +57,7 @@ public enum TranslationProvider: String, CaseIterable, Identifiable, Codable {
     public var displayName: String {
         switch self {
         case .apple: return "Apple (Native)"
+        case .appleIntelligence: return "Apple Intelligence"
         case .microsoft: return "Microsoft (Edge)"
         case .google: return "Google Translate"
         }
@@ -64,7 +67,7 @@ public enum TranslationProvider: String, CaseIterable, Identifiable, Codable {
 public actor TranslationEngine {
     public static let shared = TranslationEngine()
 
-    private var cache: [String: String] = [:]
+    private var cache: [String: (text: String, provider: String)] = [:]
     private let maxCacheSize = 200
 
     /// Dedicated ephemeral session: no disk caching/cookies, strict fast-fail timeouts for seamless failover
@@ -139,9 +142,9 @@ public actor TranslationEngine {
 
     /// Translates into a single target language. `from == nil` lets the service detect the source.
     private func translateOne(text: String, from: SwaprLanguage?, to: SwaprLanguage, provider: TranslationProvider) async throws -> (String, String) {
-        let cacheKey = "\(from?.code ?? "auto"):\(to.code):\(text)"
+        let cacheKey = "\(provider.rawValue):\(from?.code ?? "auto"):\(to.code):\(text)"
         if let cached = cache[cacheKey] {
-            return (cached, provider.displayName)
+            return (cached.text, cached.provider)
         }
 
         let fromLang = from?.code ?? ""
@@ -149,9 +152,13 @@ public actor TranslationEngine {
         var translatedText = ""
         var usedProvider = provider.displayName
 
-        if provider == .apple {
-            if #available(macOS 26.0, *), let from = from, let native = try? await translateViaApple(text: text, from: from.code, to: to.code) {
+        if provider == .appleIntelligence, let written = try? await AppleIntelligenceTranslator.translate(text: text, from: from, to: to) {
+            translatedText = written
+        } else if provider == .apple || provider == .appleIntelligence {
+            // Apple Intelligence also lands here when it can't help (not enabled, language unsupported, error)
+            if #available(macOS 26.0, *), let from = from, let native = try? await withTimeout(seconds: 4, { try await self.translateViaApple(text: text, from: from.code, to: to.code) }) {
                 translatedText = native
+                usedProvider = TranslationProvider.apple.displayName
             } else {
                 do {
                     translatedText = try await translateViaMicrosoftEdge(text: text, from: fromLang, to: to.code)
@@ -181,7 +188,7 @@ public actor TranslationEngine {
         if cache.count >= maxCacheSize, let firstKey = cache.keys.first {
             cache.removeValue(forKey: firstKey)
         }
-        cache[cacheKey] = translatedText
+        cache[cacheKey] = (translatedText, usedProvider)
         return (translatedText, usedProvider)
     }
 

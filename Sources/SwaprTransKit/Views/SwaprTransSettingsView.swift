@@ -64,6 +64,10 @@ public struct SwaprTransSettingsView: View {
                 // Switch immediately; warn (without reverting) if Apple's models are missing
                 config.provider = newProvider
                 modelDownloadWarning = nil
+                if newProvider == .appleIntelligence {
+                    AppleIntelligenceTranslator.prewarm()
+                    refreshProviderNotice()
+                }
                 guard newProvider == .apple else { return }
                 Task { @MainActor in
                     switch await AppleTranslationChecker.checkStatus() {
@@ -77,6 +81,24 @@ public struct SwaprTransSettingsView: View {
                 }
             }
         )
+    }
+
+    /// Why Apple Intelligence can't (fully) be used right now, shown under the Engine row.
+    private func refreshProviderNotice() {
+        guard config.provider == .appleIntelligence else { return }
+        let targets = SwaprLanguagePair.decodeTargets(targetLanguages)
+        modelDownloadWarning = AppleIntelligenceTranslator.status(for: targets).message
+    }
+
+    /// Engines this Mac can offer: Apple Intelligence needs macOS 26.
+    private var availableProviders: [TranslationProvider] {
+        TranslationProvider.allCases.filter { provider in
+            if provider == .appleIntelligence {
+                if #available(macOS 26.0, *) { return true }
+                return false
+            }
+            return true
+        }
     }
 
     // MARK: - Body
@@ -100,7 +122,7 @@ public struct SwaprTransSettingsView: View {
                 }
                 SettingsRow("Engine") {
                     Picker("", selection: providerBinding) {
-                        ForEach(TranslationProvider.allCases) { Text($0.displayName).tag($0) }
+                        ForEach(availableProviders) { Text($0.displayName).tag($0) }
                     }
                     .settingsMenu()
                 }
@@ -164,7 +186,7 @@ public struct SwaprTransSettingsView: View {
                     }
                     .settingsMenu()
                 }
-                SettingsRow("Click on translation") {
+                SettingsRow("Click action") {
                     Picker("", selection: $clickAction) {
                         ForEach(TranslationClickAction.allCases) { Text($0.label).tag($0.rawValue) }
                     }
@@ -192,6 +214,8 @@ public struct SwaprTransSettingsView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 4)
         }
+        .onAppear(perform: refreshProviderNotice)
+        .onChange(of: targetLanguages) { _, _ in refreshProviderNotice() }
     }
 
     private var triggerHint: String {

@@ -1,7 +1,7 @@
 {
-  "version": "1.7.0",
-  "date": "2026-10-29",
-  "notes": "Copied / Replaced shown beside the translation. New click option: Do nothing (keep open) — a click also stops auto dismiss. Traditional Chinese.",
-  "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.7.0/SwaprTrans-1.7.0.dmg",
-  "sha256": "65d8a7e0d797ece8391159bb6b69a77481d3b8c4cddc63b9c906e3d5114a83a7"
+  "version": "1.8.0",
+  "date": "2026-10-31",
+  "notes": "New engine: Apple Intelligence (on-device model, macOS 26+). Falls back to Apple Native / Microsoft / Google. Translation timeouts so a stuck engine can't block the others.",
+  "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.8.0/SwaprTrans-1.8.0.dmg",
+  "sha256": "895074d7a48f48ceb30940b9ef93683b30d6f5fa4f9de3d7cfa619468984aa42"
 }

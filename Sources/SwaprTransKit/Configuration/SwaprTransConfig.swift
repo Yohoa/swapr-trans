@@ -20,7 +20,15 @@ public final class SwaprTransConfig: ObservableObject {
 
     /// Provider as persisted, readable off the main actor.
     public nonisolated static var storedProvider: TranslationProvider {
-        UserDefaults.standard.string(forKey: "swapr_trans_provider").flatMap(TranslationProvider.init(rawValue:)) ?? .apple
+        let stored = UserDefaults.standard.string(forKey: "swapr_trans_provider").flatMap(TranslationProvider.init(rawValue:)) ?? .apple
+        return supported(stored)
+    }
+
+    /// Apple Intelligence needs macOS 26; on older systems it counts as Apple (Native).
+    private nonisolated static func supported(_ provider: TranslationProvider) -> TranslationProvider {
+        guard provider == .appleIntelligence else { return provider }
+        if #available(macOS 26.0, *) { return provider }
+        return .apple
     }
     private let keyShortcut = "swapr_trans_shortcut"
     private let keyDismissSeconds = "swapr_trans_dismiss_seconds"
@@ -108,7 +116,7 @@ public final class SwaprTransConfig: ObservableObject {
 
         if let savedProviderRaw = defaults.string(forKey: keyProvider),
            let p = TranslationProvider(rawValue: savedProviderRaw) {
-            self.provider = p
+            self.provider = Self.supported(p)
         }
 
         if let shortcutData = defaults.data(forKey: keyShortcut),
@@ -146,6 +154,13 @@ public final class SwaprTransConfig: ObservableObject {
             if self.isEnabled && self.hasAccessibilityPermission {
                 TranslateMonitor.shared.startMonitoring(with: self.shortcut)
                 self.log("SwaprTrans service activated (Shortcut: \(self.shortcut.label))", level: .info)
+            }
+
+            if self.provider == .appleIntelligence {
+                AppleIntelligenceTranslator.prewarm()
+                if let message = AppleIntelligenceTranslator.status(for: SwaprLanguagePair.current.targets).message {
+                    self.log("[Translation] \(message)", level: .warning)
+                }
             }
 
             // Check if Apple Native Translation model is installed
