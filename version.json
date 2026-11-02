@@ -1,7 +1,7 @@
 {
   "version": "1.8.1",
   "date": "2026-11-02",
-  "notes": "Copied / Replaced shows a transparent green tint with a small label. The translation window now steps aside and sits right next to Siri's window instead of covering it.",
+  "notes": "Copied / Replaced shows a transparent green tint with a small label. The translation window steps aside and sits right next to Siri's floating panel instead of being hidden under it.",
   "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.8.1/SwaprTrans-1.8.1.dmg",
-  "sha256": "863d6f141e7c49e207db66768ed50c6649667df547e2a83cee1fc5ac022fe8cd"
+  "sha256": "5d4e1fbc35227ea06cd091fccc1acba688fc1fed3f36d99b1a8e15cc2169ee9e"
 }

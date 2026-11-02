@@ -1,7 +1,7 @@
 import AppKit
 
-/// Keeps the translation window off Siri's windows (the Siri chat panel, its settings window, ...).
-/// The window sits next to the Siri window instead of on top of it.
+/// Keeps the translation window off Siri's floating panel, which is drawn above it.
+/// The window sits next to the panel instead of underneath it.
 enum SiriAvoidance {
     /// Smallest Siri window worth avoiding; tiny helper windows are ignored.
     private static let minimumSize = NSSize(width: 100, height: 60)
@@ -15,7 +15,10 @@ enum SiriAvoidance {
         let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
         let ownPid = ProcessInfo.processInfo.processIdentifier
         return list.compactMap { info in
+            // Only Siri's floating panel (a layer above normal windows) is avoided: it is drawn above the
+            // translation window and would hide part of it. Siri's ordinary windows (settings) sit below it.
             guard let owner = info[kCGWindowOwnerName as String] as? String, owner.hasPrefix("Siri"),
+                  (info[kCGWindowLayer as String] as? Int ?? 0) > 0,
                   (info[kCGWindowOwnerPID as String] as? Int32) != ownPid,
                   (info[kCGWindowAlpha as String] as? Double ?? 1) > 0,
                   let bounds = info[kCGWindowBounds as String] as? [String: Any],
