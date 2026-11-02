@@ -1,7 +1,7 @@
 {
-  "version": "1.8.0",
-  "date": "2026-10-31",
-  "notes": "New engine: Apple Intelligence (on-device model, macOS 26+). Falls back to Apple Native / Microsoft / Google. Translation timeouts so a stuck engine can't block the others.",
-  "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.8.0/SwaprTrans-1.8.0.dmg",
-  "sha256": "895074d7a48f48ceb30940b9ef93683b30d6f5fa4f9de3d7cfa619468984aa42"
+  "version": "1.8.1",
+  "date": "2026-11-02",
+  "notes": "Copied / Replaced shows a soft, transparent green tint over the translation with a small Copied / Replaced label, briefly (nothing shifts or gets hidden).",
+  "dmgUrl": "https://github.com/Yohoa/swapr-trans/releases/download/1.8.1/SwaprTrans-1.8.1.dmg",
+  "sha256": "b1b6f58566c1499cd38c7335159927f83aa0351724942e2ddc2de709ab383d4a"
 }

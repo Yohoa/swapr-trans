@@ -114,7 +114,7 @@ public final class TranslationHudController: NSObject, AVSpeechSynthesizerDelega
     private var isHovering = false
     private var confirmationWork: DispatchWorkItem?
     /// How long the Copied / Replaced badge stays; a replace closes the window when it ends.
-    private static let confirmationDuration = 0.9
+    private static let confirmationDuration = 0.55
 
     private override init() {
         super.init()
@@ -630,22 +630,6 @@ public struct TranslationHudView: View {
         .frame(width: cardWidth)
         // The opacity setting controls only the background, so the text always stays fully legible
         .glassCard(.popover, solidity: config.hudOpacity)
-        // Copied / Replaced: a green check over the whole card instead of text that shifts the layout
-        .overlay {
-            if model.confirmation != nil {
-                ZStack {
-                    RoundedRectangle(cornerRadius: swaprCornerRadius, style: .continuous).fill(Color(nsColor: .windowBackgroundColor).opacity(0.9))
-                    RoundedRectangle(cornerRadius: swaprCornerRadius, style: .continuous).fill(Color.green.opacity(0.14))
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 60, weight: .regular))
-                        .foregroundStyle(.green)
-                        .symbolRenderingMode(.hierarchical)
-                }
-                .transition(.opacity)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-            }
-        }
         .onHover(perform: onHover)
         .applyAppleTranslation(model: model)
         .animation(.easeOut(duration: 0.2), value: model.confirmation)
@@ -789,6 +773,38 @@ public struct TranslationHudView: View {
             RoundedRectangle(cornerRadius: 9, style: .continuous)
                 .fill(isSelected ? Color.accentColor.opacity(0.12) : (isMulti && isHovered ? Color.primary.opacity(0.05) : Color.clear))
         )
+        // Copied / Replaced: covers this translation (all of them for Copy All / Replace All) and says what happened
+        .overlay {
+            if let done = model.confirmation, done.applies(to: index) {
+                HStack(spacing: 5) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                    Text(done.kind == .copied ? "Copied" : "Replaced")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .foregroundStyle(Color(nsColor: NSColor(name: nil) { appearance in
+                    // Darker in light mode so the label stays readable
+                    appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+                        ? .systemGreen : NSColor(red: 0.10, green: 0.50, blue: 0.22, alpha: 1)
+                }))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Capsule().fill(.regularMaterial))
+                // Bottom right, in the empty part of the button row, so no text is covered
+                .padding(isMulti ? 8 : 4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                // Transparent tint: the translation stays visible underneath
+                .background(
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.green.opacity(0.18))
+                        RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.green.opacity(0.4), lineWidth: 1)
+                    }
+                )
+                .padding(isMulti ? 0 : -6)
+                .transition(.opacity)
+                .allowsHitTesting(false)
+            }
+        }
         .onHover { inside in
             hoveredIndex = inside ? index : (hoveredIndex == index ? nil : hoveredIndex)
             if inside && isMulti { model.selectedIndex = index }
