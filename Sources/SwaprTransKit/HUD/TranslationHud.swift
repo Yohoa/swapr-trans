@@ -568,8 +568,6 @@ public struct TranslationHudView: View {
     let onClose: () -> Void
 
     @AppStorage(TranslationClickAction.storageKey) private var clickActionRaw: String = TranslationClickAction.replace.rawValue
-    @State private var copiedIndex: Int? = nil
-    @State private var copiedAll: Bool = false
     @State private var hoveredIndex: Int? = nil
     @State private var isHoveringDirection: Bool = false
 
@@ -632,13 +630,25 @@ public struct TranslationHudView: View {
         .frame(width: cardWidth)
         // The opacity setting controls only the background, so the text always stays fully legible
         .glassCard(.popover, solidity: config.hudOpacity)
+        // Copied / Replaced: a green check over the whole card instead of text that shifts the layout
+        .overlay {
+            if model.confirmation != nil {
+                ZStack {
+                    RoundedRectangle(cornerRadius: swaprCornerRadius, style: .continuous).fill(Color(nsColor: .windowBackgroundColor).opacity(0.9))
+                    RoundedRectangle(cornerRadius: swaprCornerRadius, style: .continuous).fill(Color.green.opacity(0.14))
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 60, weight: .regular))
+                        .foregroundStyle(.green)
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .transition(.opacity)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            }
+        }
         .onHover(perform: onHover)
         .applyAppleTranslation(model: model)
         .animation(.easeOut(duration: 0.2), value: model.confirmation)
-        .onChange(of: model.results.map(\.text)) { _, _ in
-            copiedIndex = nil
-            copiedAll = false
-        }
     }
 
     // MARK: Header
@@ -744,14 +754,6 @@ public struct TranslationHudView: View {
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                if let done = model.confirmation, done.applies(to: index) {
-                    Label(done.kind == .copied ? "Copied" : "Replaced",
-                          systemImage: done.kind == .copied ? "checkmark.circle.fill" : "arrow.turn.down.left")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.green)
-                        .fixedSize()
-                        .transition(.opacity)
-                }
             }
             .contentShape(Rectangle())
             .onTapGesture { runClickAction(index) }
@@ -765,7 +767,7 @@ public struct TranslationHudView: View {
                 Button {
                     copy(index)
                 } label: {
-                    Label(copiedIndex == index ? "Copied" : "Copy", systemImage: copiedIndex == index ? "checkmark" : "doc.on.doc")
+                    Label("Copy", systemImage: "doc.on.doc")
                 }
                 if !model.isPreview {
                     Button {
@@ -806,11 +808,6 @@ public struct TranslationHudView: View {
 
     private func copy(_ index: Int) {
         onCopy(index)
-        copiedAll = false
-        copiedIndex = index
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            if copiedIndex == index { copiedIndex = nil }
-        }
     }
 
     private func runClickAction(_ index: Int) {
@@ -842,11 +839,8 @@ public struct TranslationHudView: View {
 
             Button {
                 onCopyAll()
-                copiedIndex = nil
-                copiedAll = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copiedAll = false }
             } label: {
-                Label(copiedAll ? "Copied" : "Copy All", systemImage: copiedAll ? "checkmark" : "doc.on.doc")
+                Label("Copy All", systemImage: "doc.on.doc")
             }
             .controlSize(.large)
             .fixedSize()
