@@ -62,6 +62,20 @@ public final class TranslationHudModel: ObservableObject {
 final class NonActivatingPanel: AnchoredPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
+
+    private var isAvoidingSiri = false
+
+    /// After the normal anchoring, steps aside if the window would cover one of Siri's windows.
+    override func setFrame(_ frameRect: NSRect, display flag: Bool) {
+        super.setFrame(frameRect, display: flag)
+        guard !isAvoidingSiri, anchorTopLeft != nil,
+              let screen = NSScreen.screens.first(where: { $0.frame.intersects(frame) })?.visibleFrame,
+              let moved = SiriAvoidance.adjusted(frame, screen: screen) else { return }
+        isAvoidingSiri = true
+        anchorTopLeft = NSPoint(x: moved.minX, y: moved.maxY)
+        super.setFrame(NSRect(origin: .zero, size: frame.size), display: flag)
+        isAvoidingSiri = false
+    }
     override var acceptsFirstResponder: Bool { false }
 }
 
